@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import compression from 'compression';
 import rateLimit from 'express-rate-limit';
 import authRoutes from './routes/auth';
+import oauthRoutes from './routes/oauth';
 
 const app = express();
 
@@ -59,6 +60,7 @@ app.get('/health', (req, res) => {
 
 // API routes
 app.use('/api/auth', authRoutes);
+app.use('/api/oauth', oauthRoutes);
 
 // 404 handler
 app.use('*', (req, res) => {

@@ -25,6 +25,9 @@ interface UserAttributes {
   risk_score: number;
   mfa_enabled: boolean;
   mfa_secret?: string;
+  oauth_provider?: string;
+  oauth_id?: string;
+  oauth_email?: string;
   status: string;
   last_login_at?: Date;
   created_at: Date;
@@ -49,6 +52,9 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
   public risk_score!: number;
   public mfa_enabled!: boolean;
   public mfa_secret?: string;
+  public oauth_provider?: string;
+  public oauth_id?: string;
+  public oauth_email?: string;
   public status!: string;
   public last_login_at?: Date;
   public created_at!: Date;
@@ -165,6 +171,21 @@ User.init(
       defaultValue: false,
     },
     mfa_secret: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    oauth_provider: {
+      type: DataTypes.STRING(50),
+      allowNull: true,
+      validate: {
+        isIn: [['google', 'apple', null]],
+      },
+    },
+    oauth_id: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    oauth_email: {
       type: DataTypes.STRING(255),
       allowNull: true,
     },
