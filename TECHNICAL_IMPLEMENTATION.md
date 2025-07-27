@@ -447,6 +447,7 @@ export class AuthService {
       lastName: user.last_name,
       role: user.role,
       mfaEnabled: user.mfa_enabled,
+      oauthProvider: user.oauth_provider,
       status: user.status
     };
   }
@@ -1603,4 +1604,591 @@ volumes:
   redis_data:
 ```
 
-This technical implementation guide provides the foundation for building the XRPL Multi-Sign Manager. The code examples demonstrate best practices for security, scalability, and maintainability while following the established architecture patterns. 
+This technical implementation guide provides the foundation for building the XRPL Multi-Sign Manager. The code examples demonstrate best practices for security, scalability, and maintainability while following the established architecture patterns.
+
+## OAuth Authentication Implementation
+
+### OAuth Service
+
+```typescript
+// src/services/OAuthService.ts
+import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
+import User from '../models/User';
+
+interface OAuthUserData {
+  provider: 'google' | 'apple';
+  oauthId: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  picture?: string;
+}
+
+interface OAuthResult {
+  accessToken: string;
+  refreshToken: string;
+  user: {
+    id: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    role: string;
+    mfaEnabled: boolean;
+    oauthProvider: string;
+  };
+  expiresIn: number;
+  isNewUser: boolean;
+}
+
+export class OAuthService {
+  private readonly jwtSecret: string;
+  private readonly jwtExpiry: string;
+  private readonly refreshTokenExpiry: string;
+
+  constructor() {
+    this.jwtSecret = process.env.JWT_SECRET || 'default-secret-change-in-production';
+    this.jwtExpiry = process.env.JWT_EXPIRY || '15m';
+    this.refreshTokenExpiry = process.env.REFRESH_TOKEN_EXPIRY || '7d';
+  }
+
+  async authenticateOAuthUser(userData: OAuthUserData): Promise<OAuthResult> {
+    const { provider, oauthId, email, firstName, lastName } = userData;
+
+    // Check if user exists by OAuth ID
+    let user = await User.findOne({
+      where: {
+        oauth_provider: provider,
+        oauth_id: oauthId
+      }
+    });
+
+    let isNewUser = false;
+
+    if (!user) {
+      // Check if user exists by email
+      user = await User.findOne({
+        where: { email: email.toLowerCase() }
+      });
+
+      if (user) {
+        // Link existing account to OAuth
+        user.oauth_provider = provider;
+        user.oauth_id = oauthId;
+        user.oauth_email = email;
+        await user.save();
+      } else {
+        // Create new user
+        isNewUser = true;
+        user = await User.create({
+          email: email.toLowerCase(),
+          first_name: firstName,
+          last_name: lastName,
+          oauth_provider: provider,
+          oauth_id: oauthId,
+          oauth_email: email,
+          role: 'user',
+          status: 'active',
+          // Generate a random password for OAuth users
+          password_hash: await this.generateOAuthPassword()
+        });
+      }
+    }
+
+    // Update last login
+    user.last_login_at = new Date();
+    await user.save();
+
+    // Generate tokens
+    const accessToken = this.generateAccessToken(user);
+    const refreshToken = this.generateRefreshToken(user);
+
+    return {
+      accessToken,
+      refreshToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        role: user.role,
+        mfaEnabled: user.mfa_enabled,
+        oauthProvider: user.oauth_provider || provider
+      },
+      expiresIn: 900, // 15 minutes
+      isNewUser
+    };
+  }
+
+  async verifyGoogleToken(idToken: string): Promise<OAuthUserData> {
+    try {
+      // In production, verify the token with Google's API
+      // For now, we'll decode the JWT (this should be replaced with proper verification)
+      const decoded = jwt.decode(idToken) as any;
+      
+      if (!decoded || !decoded.sub || !decoded.email) {
+        throw new Error('Invalid Google token');
+      }
+
+      return {
+        provider: 'google',
+        oauthId: decoded.sub,
+        email: decoded.email,
+        firstName: decoded.given_name || '',
+        lastName: decoded.family_name || '',
+        picture: decoded.picture
+      };
+    } catch (error) {
+      throw new Error('Failed to verify Google token');
+    }
+  }
+
+  async verifyAppleToken(idToken: string): Promise<OAuthUserData> {
+    try {
+      // In production, verify the token with Apple's API
+      // For now, we'll decode the JWT (this should be replaced with proper verification)
+      const decoded = jwt.decode(idToken) as any;
+      
+      if (!decoded || !decoded.sub || !decoded.email) {
+        throw new Error('Invalid Apple token');
+      }
+
+      return {
+        provider: 'apple',
+        oauthId: decoded.sub,
+        email: decoded.email,
+        firstName: decoded.name?.firstName || '',
+        lastName: decoded.name?.lastName || ''
+      };
+    } catch (error) {
+      throw new Error('Failed to verify Apple token');
+    }
+  }
+
+  private generateAccessToken(user: User): string {
+    const payload = {
+      userId: user.id,
+      email: user.email,
+      role: user.role
+    };
+
+    return jwt.sign(payload, this.jwtSecret, { expiresIn: this.jwtExpiry });
+  }
+
+  private generateRefreshToken(user: User): string {
+    const payload = {
+      userId: user.id,
+      email: user.email,
+      role: user.role
+    };
+
+    return jwt.sign(payload, this.jwtSecret, { expiresIn: this.refreshTokenExpiry });
+  }
+
+  private async generateOAuthPassword(): Promise<string> {
+    // Generate a secure random password for OAuth users
+    const randomPassword = crypto.randomBytes(32).toString('hex');
+    const bcrypt = require('bcrypt');
+    return await bcrypt.hash(randomPassword, 12);
+  }
+
+  async linkOAuthToExistingAccount(userId: string, provider: 'google' | 'apple', oauthId: string, oauthEmail: string): Promise<void> {
+    const user = await User.findByPk(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // Check if OAuth account is already linked to another user
+    const existingOAuthUser = await User.findOne({
+      where: {
+        oauth_provider: provider,
+        oauth_id: oauthId
+      }
+    });
+
+    if (existingOAuthUser && existingOAuthUser.id !== userId) {
+      throw new Error('OAuth account is already linked to another user');
+    }
+
+    // Link OAuth account
+    user.oauth_provider = provider;
+    user.oauth_id = oauthId;
+    user.oauth_email = oauthEmail;
+    await user.save();
+  }
+
+  async unlinkOAuthAccount(userId: string, provider: 'google' | 'apple'): Promise<void> {
+    const user = await User.findByPk(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    if (user.oauth_provider !== provider) {
+      throw new Error('OAuth account not linked');
+    }
+
+    // Check if user has a password set
+    if (!user.password_hash || user.password_hash === '') {
+      throw new Error('Cannot unlink OAuth account without setting a password first');
+    }
+
+    // Unlink OAuth account
+    user.oauth_provider = null;
+    user.oauth_id = null;
+    user.oauth_email = null;
+    await user.save();
+  }
+}
+```
+
+### OAuth Controller
+
+```typescript
+// src/controllers/OAuthController.ts
+import { Request, Response } from 'express';
+import { OAuthService } from '../services/OAuthService';
+
+export class OAuthController {
+  private oauthService: OAuthService;
+
+  constructor() {
+    this.oauthService = new OAuthService();
+  }
+
+  async googleAuth(req: Request, res: Response): Promise<void> {
+    try {
+      const { idToken } = req.body;
+
+      if (!idToken) {
+        res.status(400).json({
+          success: false,
+          message: 'Google ID token is required'
+        });
+        return;
+      }
+
+      // Verify Google token
+      const userData = await this.oauthService.verifyGoogleToken(idToken);
+
+      // Authenticate user
+      const result = await this.oauthService.authenticateOAuthUser(userData);
+
+      res.status(200).json({
+        success: true,
+        message: result.isNewUser ? 'Google account linked successfully' : 'Login successful',
+        data: {
+          accessToken: result.accessToken,
+          refreshToken: result.refreshToken,
+          user: result.user,
+          expiresIn: result.expiresIn,
+          isNewUser: result.isNewUser
+        }
+      });
+    } catch (error) {
+      console.error('Google OAuth error:', error);
+      
+      if (error instanceof Error) {
+        if (error.message.includes('Invalid Google token')) {
+          res.status(401).json({
+            success: false,
+            message: 'Invalid Google token'
+          });
+        } else {
+          res.status(500).json({
+            success: false,
+            message: 'Google authentication failed'
+          });
+        }
+      } else {
+        res.status(500).json({
+          success: false,
+          message: 'Google authentication failed'
+        });
+      }
+    }
+  }
+
+  async appleAuth(req: Request, res: Response): Promise<void> {
+    try {
+      const { idToken } = req.body;
+
+      if (!idToken) {
+        res.status(400).json({
+          success: false,
+          message: 'Apple ID token is required'
+        });
+        return;
+      }
+
+      // Verify Apple token
+      const userData = await this.oauthService.verifyAppleToken(idToken);
+
+      // Authenticate user
+      const result = await this.oauthService.authenticateOAuthUser(userData);
+
+      res.status(200).json({
+        success: true,
+        message: result.isNewUser ? 'Apple account linked successfully' : 'Login successful',
+        data: {
+          accessToken: result.accessToken,
+          refreshToken: result.refreshToken,
+          user: result.user,
+          expiresIn: result.expiresIn,
+          isNewUser: result.isNewUser
+        }
+      });
+    } catch (error) {
+      console.error('Apple OAuth error:', error);
+      
+      if (error instanceof Error) {
+        if (error.message.includes('Invalid Apple token')) {
+          res.status(401).json({
+            success: false,
+            message: 'Invalid Apple token'
+          });
+        } else {
+          res.status(500).json({
+            success: false,
+            message: 'Apple authentication failed'
+          });
+        }
+      } else {
+        res.status(500).json({
+          success: false,
+          message: 'Apple authentication failed'
+        });
+      }
+    }
+  }
+
+  async linkOAuthAccount(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = (req as any).user?.userId;
+      const { provider, idToken } = req.body;
+
+      if (!userId) {
+        res.status(401).json({
+          success: false,
+          message: 'User not authenticated'
+        });
+        return;
+      }
+
+      if (!provider || !idToken) {
+        res.status(400).json({
+          success: false,
+          message: 'Provider and ID token are required'
+        });
+        return;
+      }
+
+      let userData;
+      if (provider === 'google') {
+        userData = await this.oauthService.verifyGoogleToken(idToken);
+      } else if (provider === 'apple') {
+        userData = await this.oauthService.verifyAppleToken(idToken);
+      } else {
+        res.status(400).json({
+          success: false,
+          message: 'Invalid provider. Supported providers: google, apple'
+        });
+        return;
+      }
+
+      // Link OAuth account to existing user
+      await this.oauthService.linkOAuthToExistingAccount(
+        userId,
+        provider,
+        userData.oauthId,
+        userData.email
+      );
+
+      res.status(200).json({
+        success: true,
+        message: `${provider} account linked successfully`
+      });
+    } catch (error) {
+      console.error('Link OAuth account error:', error);
+      
+      if (error instanceof Error) {
+        if (error.message.includes('already linked to another user')) {
+          res.status(409).json({
+            success: false,
+            message: 'OAuth account is already linked to another user'
+          });
+        } else {
+          res.status(500).json({
+            success: false,
+            message: 'Failed to link OAuth account'
+          });
+        }
+      } else {
+        res.status(500).json({
+          success: false,
+          message: 'Failed to link OAuth account'
+        });
+      }
+    }
+  }
+
+  async unlinkOAuthAccount(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = (req as any).user?.userId;
+      const { provider } = req.body;
+
+      if (!userId) {
+        res.status(401).json({
+          success: false,
+          message: 'User not authenticated'
+        });
+        return;
+      }
+
+      if (!provider) {
+        res.status(400).json({
+          success: false,
+          message: 'Provider is required'
+        });
+        return;
+      }
+
+      if (!['google', 'apple'].includes(provider)) {
+        res.status(400).json({
+          success: false,
+          message: 'Invalid provider. Supported providers: google, apple'
+        });
+        return;
+      }
+
+      // Unlink OAuth account
+      await this.oauthService.unlinkOAuthAccount(userId, provider as 'google' | 'apple');
+
+      res.status(200).json({
+        success: true,
+        message: `${provider} account unlinked successfully`
+      });
+    } catch (error) {
+      console.error('Unlink OAuth account error:', error);
+      
+      if (error instanceof Error) {
+        if (error.message.includes('Cannot unlink OAuth account without setting a password')) {
+          res.status(400).json({
+            success: false,
+            message: 'Please set a password before unlinking your OAuth account'
+          });
+        } else if (error.message.includes('OAuth account not linked')) {
+          res.status(400).json({
+            success: false,
+            message: 'OAuth account is not linked'
+          });
+        } else {
+          res.status(500).json({
+            success: false,
+            message: 'Failed to unlink OAuth account'
+          });
+        }
+      } else {
+        res.status(500).json({
+          success: false,
+          message: 'Failed to unlink OAuth account'
+        });
+      }
+    }
+  }
+}
+```
+
+### OAuth Routes
+
+```typescript
+// src/routes/oauth.ts
+import { Router } from 'express';
+import { OAuthController } from '../controllers/OAuthController';
+
+const router = Router();
+const oauthController = new OAuthController();
+
+// POST /api/oauth/google
+router.post('/google', async (req, res) => {
+  await oauthController.googleAuth(req, res);
+});
+
+// POST /api/oauth/apple
+router.post('/apple', async (req, res) => {
+  await oauthController.appleAuth(req, res);
+});
+
+// POST /api/oauth/link
+router.post('/link', async (req, res) => {
+  await oauthController.linkOAuthAccount(req, res);
+});
+
+// POST /api/oauth/unlink
+router.post('/unlink', async (req, res) => {
+  await oauthController.unlinkOAuthAccount(req, res);
+});
+
+export default router;
+```
+
+### Environment Variables for OAuth
+
+```bash
+# OAuth Configuration
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+GOOGLE_CALLBACK_URL=http://localhost:3001/api/oauth/google/callback
+
+APPLE_CLIENT_ID=your-apple-client-id
+APPLE_TEAM_ID=your-apple-team-id
+APPLE_KEY_ID=your-apple-key-id
+APPLE_PRIVATE_KEY=your-apple-private-key
+APPLE_CALLBACK_URL=http://localhost:3001/api/oauth/apple/callback
+```
+
+### Database Migration for OAuth Fields
+
+```typescript
+// src/migrations/002_add_oauth_fields.ts
+import { QueryInterface, DataTypes } from 'sequelize';
+
+export async function up(queryInterface: QueryInterface): Promise<void> {
+  // Add OAuth fields to users table
+  await queryInterface.addColumn('users', 'oauth_provider', {
+    type: DataTypes.STRING(50),
+    allowNull: true,
+  });
+
+  await queryInterface.addColumn('users', 'oauth_id', {
+    type: DataTypes.STRING(255),
+    allowNull: true,
+  });
+
+  await queryInterface.addColumn('users', 'oauth_email', {
+    type: DataTypes.STRING(255),
+    allowNull: true,
+  });
+
+  // Add indexes for OAuth fields
+  await queryInterface.addIndex('users', ['oauth_provider', 'oauth_id'], {
+    unique: true,
+    where: {
+      oauth_provider: { [require('sequelize').Op.not]: null },
+      oauth_id: { [require('sequelize').Op.not]: null }
+    }
+  });
+
+  await queryInterface.addIndex('users', ['oauth_email']);
+}
+
+export async function down(queryInterface: QueryInterface): Promise<void> {
+  // Remove indexes
+  await queryInterface.removeIndex('users', ['oauth_provider', 'oauth_id']);
+  await queryInterface.removeIndex('users', ['oauth_email']);
+
+  // Remove OAuth columns
+  await queryInterface.removeColumn('users', 'oauth_provider');
+  await queryInterface.removeColumn('users', 'oauth_id');
+  await queryInterface.removeColumn('users', 'oauth_email');
+}
+``` 

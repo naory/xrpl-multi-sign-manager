@@ -4,12 +4,12 @@ This document tracks the progress of development tasks against the roadmap defin
 
 ## Overall Progress
 
-- **Phase 1 (Foundation)**: 25% Complete (12/48 tasks)
+- **Phase 1 (Foundation)**: 37.5% Complete (18/48 tasks)
 - **Phase 2 (Enhanced Features)**: 0% Complete (0/48 tasks)
 - **Phase 3 (Enterprise Features)**: 0% Complete (0/48 tasks)
 - **Phase 4 (Production Ready)**: 0% Complete (0/48 tasks)
 
-**Total Progress**: 6.3% Complete (12/192 tasks)
+**Total Progress**: 9.4% Complete (18/192 tasks)
 
 ---
 
@@ -34,8 +34,14 @@ This document tracks the progress of development tasks against the roadmap defin
 - [x] Implement user registration and login
 - [x] Set up JWT token management
 - [x] Create basic API structure with Express.js
+- [x] Implement OAuth authentication (Google & Apple)
+- [x] Create OAuth service and controller
+- [x] Add OAuth routes and account management
+- [x] Extend User model with OAuth fields
+- [x] Create OAuth database migration
+- [x] Add comprehensive OAuth documentation
 
-**Week 3-4 Progress**: 100% Complete (6/6 tasks)
+**Week 3-4 Progress**: 100% Complete (12/12 tasks)
 
 ### Month 2: Core Multi-Signature Functionality
 
