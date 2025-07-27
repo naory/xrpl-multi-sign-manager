@@ -39,9 +39,12 @@ xrpl-multi-sign-manager/
 
 ## Backend Implementation
 
-### Database Schema Implementation
+### Complete Database Schema Implementation
 
 ```sql
+-- Enable UUID extension
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 -- Users table
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -50,10 +53,43 @@ CREATE TABLE users (
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
     phone VARCHAR(20),
+    role VARCHAR(50) NOT NULL DEFAULT 'user',
     kyc_status VARCHAR(50) DEFAULT 'pending',
     kyc_verified_at TIMESTAMP,
+    kyc_document_hash VARCHAR(255),
+    aml_status VARCHAR(50) DEFAULT 'pending',
+    ofac_status VARCHAR(50) DEFAULT 'pending',
+    risk_score INTEGER DEFAULT 0,
     mfa_enabled BOOLEAN DEFAULT false,
     mfa_secret VARCHAR(255),
+    status VARCHAR(50) DEFAULT 'active',
+    last_login_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Master Keys table (for wallet master keys)
+CREATE TABLE master_keys (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    wallet_id UUID, -- Will reference wallets(id) after creation
+    key_type VARCHAR(50) NOT NULL, -- 'ed25519', 'secp256k1'
+    public_key VARCHAR(255) NOT NULL,
+    encrypted_private_key TEXT NOT NULL,
+    key_derivation_path VARCHAR(255),
+    backup_status VARCHAR(50) DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Signing Keys table (for individual signer keys)
+CREATE TABLE signing_keys (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    key_type VARCHAR(50) NOT NULL, -- 'ed25519', 'secp256k1'
+    public_key VARCHAR(255) NOT NULL,
+    encrypted_private_key TEXT NOT NULL,
+    key_derivation_path VARCHAR(255),
+    backup_status VARCHAR(50) DEFAULT 'pending',
     status VARCHAR(50) DEFAULT 'active',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -66,12 +102,48 @@ CREATE TABLE wallets (
     description TEXT,
     xrpl_address VARCHAR(255) UNIQUE NOT NULL,
     master_key_id UUID REFERENCES master_keys(id),
-    signature_scheme VARCHAR(50) NOT NULL,
+    signature_scheme VARCHAR(50) NOT NULL, -- '2-of-3', '3-of-5', 'weighted'
     required_signatures INTEGER NOT NULL,
     total_signers INTEGER NOT NULL,
     status VARCHAR(50) DEFAULT 'active',
     balance_xrp DECIMAL(20,6) DEFAULT 0,
     balance_usd DECIMAL(20,2) DEFAULT 0,
+    last_balance_update TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Add foreign key constraint after both tables exist
+ALTER TABLE master_keys ADD CONSTRAINT fk_master_keys_wallet 
+    FOREIGN KEY (wallet_id) REFERENCES wallets(id) ON DELETE CASCADE;
+
+-- Wallet Signers table
+CREATE TABLE wallet_signers (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    wallet_id UUID REFERENCES wallets(id) ON DELETE CASCADE,
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    signing_key_id UUID REFERENCES signing_keys(id),
+    role VARCHAR(50) NOT NULL, -- 'owner', 'signer', 'viewer'
+    weight INTEGER DEFAULT 1 NOT NULL, -- XRPL signer weight
+    permissions JSONB DEFAULT '{}',
+    status VARCHAR(50) DEFAULT 'active',
+    added_by UUID REFERENCES users(id),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(wallet_id, user_id)
+);
+
+-- Sessions table
+CREATE TABLE sessions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    refresh_token_hash VARCHAR(255) NOT NULL,
+    access_token_hash VARCHAR(255),
+    ip_address INET,
+    user_agent TEXT,
+    device_fingerprint VARCHAR(255),
+    is_active BOOLEAN DEFAULT true,
+    expires_at TIMESTAMP NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -82,19 +154,179 @@ CREATE TABLE transactions (
     wallet_id UUID REFERENCES wallets(id) ON DELETE CASCADE,
     initiator_id UUID REFERENCES users(id),
     xrpl_tx_hash VARCHAR(255) UNIQUE,
-    transaction_type VARCHAR(50) NOT NULL,
+    transaction_type VARCHAR(50) NOT NULL, -- 'payment', 'trust_set', 'offer_create', etc.
     destination_address VARCHAR(255),
     amount DECIMAL(20,6),
-    currency VARCHAR(50) DEFAULT 'XRP',
+    currency VARCHAR(50) DEFAULT 'XRP', -- Human-readable currency code
+    currency_hex VARCHAR(40), -- XRPL hex currency code for tokens
     fee DECIMAL(20,6),
-    status VARCHAR(50) DEFAULT 'pending',
+    status VARCHAR(50) DEFAULT 'pending', -- 'pending', 'approved', 'rejected', 'executed', 'failed'
     required_signatures INTEGER NOT NULL,
     collected_signatures INTEGER DEFAULT 0,
+    required_weight INTEGER NOT NULL, -- Total weight required for approval
+    collected_weight INTEGER DEFAULT 0, -- Total weight of collected signatures
     transaction_data JSONB NOT NULL,
     executed_at TIMESTAMP,
+    ledger_index INTEGER,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Transaction Signatures table
+CREATE TABLE transaction_signatures (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    transaction_id UUID REFERENCES transactions(id) ON DELETE CASCADE,
+    signer_id UUID REFERENCES users(id),
+    signing_key_id UUID REFERENCES signing_keys(id),
+    signature_data TEXT NOT NULL,
+    signature_type VARCHAR(50) DEFAULT 'approval', -- 'approval', 'rejection'
+    weight INTEGER DEFAULT 1 NOT NULL, -- Weight of this signature
+    ip_address INET,
+    user_agent TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Audit Logs table (Enhanced)
+CREATE TABLE audit_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id),
+    session_id UUID REFERENCES sessions(id),
+    request_id UUID,
+    action VARCHAR(100) NOT NULL,
+    resource_type VARCHAR(50) NOT NULL, -- 'wallet', 'transaction', 'user', 'key'
+    resource_id UUID,
+    details JSONB NOT NULL,
+    ip_address INET,
+    user_agent TEXT,
+    response_status INTEGER,
+    execution_time_ms INTEGER,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Rate Limits table
+CREATE TABLE rate_limits (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    identifier VARCHAR(255) NOT NULL, -- IP, user_id, or combination
+    endpoint VARCHAR(255) NOT NULL,
+    request_count INTEGER DEFAULT 1,
+    window_start TIMESTAMP NOT NULL,
+    window_end TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(identifier, endpoint, window_start)
+);
+
+-- Security Events table
+CREATE TABLE security_events (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id),
+    event_type VARCHAR(100) NOT NULL, -- 'failed_login', 'suspicious_activity', 'mfa_bypass_attempt'
+    severity VARCHAR(20) NOT NULL, -- 'low', 'medium', 'high', 'critical'
+    details JSONB NOT NULL,
+    ip_address INET,
+    user_agent TEXT,
+    resolved BOOLEAN DEFAULT false,
+    resolved_by UUID REFERENCES users(id),
+    resolved_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Failed Login Attempts table
+CREATE TABLE failed_login_attempts (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email VARCHAR(255) NOT NULL,
+    ip_address INET NOT NULL,
+    user_agent TEXT,
+    attempt_count INTEGER DEFAULT 1,
+    first_attempt_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_attempt_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    blocked_until TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Wallet Backups table
+CREATE TABLE wallet_backups (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    wallet_id UUID REFERENCES wallets(id) ON DELETE CASCADE,
+    backup_type VARCHAR(50) NOT NULL, -- 'full', 'keys_only', 'configuration'
+    encrypted_backup_data TEXT NOT NULL,
+    backup_hash VARCHAR(255) NOT NULL,
+    created_by UUID REFERENCES users(id),
+    status VARCHAR(50) DEFAULT 'active',
+    expires_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Recovery Requests table
+CREATE TABLE recovery_requests (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id),
+    wallet_id UUID REFERENCES wallets(id),
+    recovery_type VARCHAR(50) NOT NULL, -- 'key_recovery', 'wallet_recovery', 'access_recovery'
+    status VARCHAR(50) DEFAULT 'pending', -- 'pending', 'approved', 'rejected', 'completed'
+    required_approvals INTEGER NOT NULL,
+    collected_approvals INTEGER DEFAULT 0,
+    request_data JSONB NOT NULL,
+    approved_by JSONB, -- Array of user IDs who approved
+    completed_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Currency Mappings table (for hex to human-readable conversion)
+CREATE TABLE currency_mappings (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    currency_code VARCHAR(10) NOT NULL UNIQUE, -- Human-readable (e.g., 'USD')
+    currency_hex VARCHAR(40) NOT NULL UNIQUE, -- XRPL hex code
+    issuer_address VARCHAR(255), -- For issued tokens
+    currency_name VARCHAR(100) NOT NULL,
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Indexes for performance
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_role ON users(role);
+CREATE INDEX idx_users_status ON users(status);
+CREATE INDEX idx_wallets_address ON wallets(xrpl_address);
+CREATE INDEX idx_wallets_status ON wallets(status);
+CREATE INDEX idx_wallet_signers_wallet_user ON wallet_signers(wallet_id, user_id);
+CREATE INDEX idx_sessions_user_active ON sessions(user_id, is_active);
+CREATE INDEX idx_sessions_expires ON sessions(expires_at);
+CREATE INDEX idx_transactions_wallet_status ON transactions(wallet_id, status);
+CREATE INDEX idx_transactions_hash ON transactions(xrpl_tx_hash);
+CREATE INDEX idx_transaction_signatures_transaction ON transaction_signatures(transaction_id);
+CREATE INDEX idx_audit_logs_user_created ON audit_logs(user_id, created_at);
+CREATE INDEX idx_audit_logs_resource ON audit_logs(resource_type, resource_id);
+CREATE INDEX idx_rate_limits_identifier ON rate_limits(identifier, endpoint);
+CREATE INDEX idx_security_events_user_severity ON security_events(user_id, severity);
+CREATE INDEX idx_failed_login_email_ip ON failed_login_attempts(email, ip_address);
+CREATE INDEX idx_currency_mappings_hex ON currency_mappings(currency_hex);
+CREATE INDEX idx_currency_mappings_code ON currency_mappings(currency_code);
+
+-- Triggers for updated_at timestamps
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+-- Apply triggers to all tables with updated_at
+CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_master_keys_updated_at BEFORE UPDATE ON master_keys FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_signing_keys_updated_at BEFORE UPDATE ON signing_keys FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_wallets_updated_at BEFORE UPDATE ON wallets FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_wallet_signers_updated_at BEFORE UPDATE ON wallet_signers FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_sessions_updated_at BEFORE UPDATE ON sessions FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_transactions_updated_at BEFORE UPDATE ON transactions FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_audit_logs_updated_at BEFORE UPDATE ON audit_logs FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_rate_limits_updated_at BEFORE UPDATE ON rate_limits FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_recovery_requests_updated_at BEFORE UPDATE ON recovery_requests FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_currency_mappings_updated_at BEFORE UPDATE ON currency_mappings FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 ```
 
 ### Authentication Service
@@ -275,15 +507,15 @@ export class XRPLService {
 
   async setupMultiSignature(
     masterWallet: Wallet,
-    signers: string[],
+    signers: Array<{ address: string; weight: number }>,
     quorum: number
   ): Promise<MultiSignatureResult> {
     try {
       const signerList = {
-        SignerEntries: signers.map((signer, index) => ({
+        SignerEntries: signers.map((signer) => ({
           SignerEntry: {
-            Account: signer,
-            SignerWeight: 1
+            Account: signer.address,
+            SignerWeight: signer.weight
           }
         })),
         SignerQuorum: quorum
@@ -372,6 +604,112 @@ export class XRPLService {
     }
   }
 }
+
+### Currency Management Service
+
+```typescript
+// src/services/CurrencyService.ts
+import { CurrencyMapping } from '../models/CurrencyMapping';
+
+export class CurrencyService {
+  private static readonly XRP_HEX = '0000000000000000000000000000000000000000';
+  private static readonly XRP_CODE = 'XRP';
+
+  /**
+   * Convert XRPL hex currency code to human-readable format
+   */
+  async hexToCurrencyCode(hexCode: string): Promise<string> {
+    if (hexCode === this.XRP_HEX) {
+      return this.XRP_CODE;
+    }
+
+    const mapping = await CurrencyMapping.findOne({
+      where: { currency_hex: hexCode, is_active: true }
+    });
+
+    if (mapping) {
+      return mapping.currency_code;
+    }
+
+    // If no mapping found, return hex code as fallback
+    return hexCode;
+  }
+
+  /**
+   * Convert human-readable currency code to XRPL hex format
+   */
+  async currencyCodeToHex(currencyCode: string): Promise<string> {
+    if (currencyCode === this.XRP_CODE) {
+      return this.XRP_HEX;
+    }
+
+    const mapping = await CurrencyMapping.findOne({
+      where: { currency_code: currencyCode, is_active: true }
+    });
+
+    if (mapping) {
+      return mapping.currency_hex;
+    }
+
+    // If no mapping found, assume it's already a hex code
+    return currencyCode;
+  }
+
+  /**
+   * Get currency details including issuer information
+   */
+  async getCurrencyDetails(currencyCode: string): Promise<CurrencyDetails | null> {
+    const mapping = await CurrencyMapping.findOne({
+      where: { currency_code: currencyCode, is_active: true }
+    });
+
+    if (!mapping) {
+      return null;
+    }
+
+    return {
+      code: mapping.currency_code,
+      hex: mapping.currency_hex,
+      name: mapping.currency_name,
+      issuer: mapping.issuer_address,
+      isXRP: currencyCode === this.XRP_CODE
+    };
+  }
+
+  /**
+   * Initialize common currency mappings
+   */
+  async initializeCurrencyMappings(): Promise<void> {
+    const commonCurrencies = [
+      { code: 'USD', hex: '0000000000000000000000005553440000000000', name: 'US Dollar', issuer: null },
+      { code: 'EUR', hex: '0000000000000000000000004555520000000000', name: 'Euro', issuer: null },
+      { code: 'GBP', hex: '0000000000000000000000004742500000000000', name: 'British Pound', issuer: null },
+      { code: 'JPY', hex: '0000000000000000000000004A50590000000000', name: 'Japanese Yen', issuer: null },
+      { code: 'CNY', hex: '000000000000000000000000434E590000000000', name: 'Chinese Yuan', issuer: null }
+    ];
+
+    for (const currency of commonCurrencies) {
+      await CurrencyMapping.findOrCreate({
+        where: { currency_code: currency.code },
+        defaults: {
+          currency_hex: currency.hex,
+          currency_name: currency.name,
+          issuer_address: currency.issuer,
+          is_active: true
+        }
+      });
+    }
+  }
+}
+
+interface CurrencyDetails {
+  code: string;
+  hex: string;
+  name: string;
+  issuer: string | null;
+  isXRP: boolean;
+}
+```
 ```
 
 ### Wallet Management Service
@@ -420,11 +758,14 @@ export class WalletService {
       status: 'active'
     });
 
-    // Setup multi-signature on XRPL
-    const signerAddresses = signingKeys.map(key => key.xrplAddress);
+    // Setup multi-signature on XRPL with weights
+    const signerEntries = signingKeys.map((key, index) => ({
+      address: key.xrplAddress,
+      weight: 1 // Default weight, can be customized per signer
+    }));
     await this.xrplService.setupMultiSignature(
       xrplWallet,
-      signerAddresses,
+      signerEntries,
       required
     );
 
