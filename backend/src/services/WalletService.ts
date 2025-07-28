@@ -99,15 +99,17 @@ export class WalletService {
 
       // Create wallet record
       const wallet = await WalletModel.create({
+        user_id: request.userId,
         name: request.name,
-        description: request.description,
+        description: request.description || undefined,
         address: xrplWallet.address,
         // public_key: xrplWallet.publicKey,
         // encrypted_private_key: encryptedPrivateKey,
         network: request.network,
         status: 'active',
         quorum: request.quorum,
-        // created_by: request.userId,
+        is_imported: false,
+        import_verified: false,
         signature_scheme: 'weighted'
       });
 

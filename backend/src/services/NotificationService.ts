@@ -1,7 +1,7 @@
 import { LoggingService } from './LoggingService';
-import { User } from '../models/User';
-import { Wallet } from '../models/Wallet';
-import { Transaction } from '../models/Transaction';
+import User from '../models/User';
+import Wallet from '../models/Wallet';
+// import { Transaction } from '../models/Transaction';
 import { ExternalSigner } from '../models/ExternalSigner';
 import { UserWalletConnection } from '../models/UserWalletConnection';
 
@@ -546,8 +546,8 @@ export class NotificationService {
             recipients.push({
               user_id: user.id,
               email: user.email,
-              phone: user.phone,
-              push_token: user.push_token, // Assuming this field exists
+                      phone: user.phone || undefined,
+        push_token: (user as any).push_token, // Assuming this field exists
               preferences: this.getDefaultNotificationPreferences(), // TODO: Get from user preferences
             });
           }
@@ -626,8 +626,8 @@ export class NotificationService {
     const [startHour, startMinute] = preferences.quiet_hours_start.split(':').map(Number);
     const [endHour, endMinute] = preferences.quiet_hours_end.split(':').map(Number);
     
-    const startTime = startHour * 60 + startMinute;
-    const endTime = endHour * 60 + endMinute;
+    const startTime = (startHour || 0) * 60 + (startMinute || 0);
+    const endTime = (endHour || 23) * 60 + (endMinute || 59);
 
     if (startTime <= endTime) {
       return currentTime >= startTime && currentTime <= endTime;

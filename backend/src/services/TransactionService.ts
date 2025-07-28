@@ -1,7 +1,35 @@
 import { XRPLService } from './XRPLService';
 import { Wallet } from 'xrpl';
-import TransactionModel from '../models/Transaction';
-import TransactionSignatureModel from '../models/TransactionSignature';
+// import TransactionModel from '../models/Transaction';
+// import TransactionSignatureModel from '../models/TransactionSignature';
+
+// Placeholder classes for missing models
+class TransactionModel {
+  static async findByPk(id: string, options?: any): Promise<any> {
+    throw new Error('Transaction model not implemented yet');
+  }
+  static async findAll(options?: any): Promise<any[]> {
+    throw new Error('Transaction model not implemented yet');
+  }
+  static async create(data: any): Promise<any> {
+    throw new Error('Transaction model not implemented yet');
+  }
+}
+
+class TransactionSignatureModel {
+  static async create(data: any): Promise<any> {
+    throw new Error('TransactionSignature model not implemented yet');
+  }
+  static async findAll(options?: any): Promise<any[]> {
+    throw new Error('TransactionSignature model not implemented yet');
+  }
+  static async findOne(options?: any): Promise<any> {
+    throw new Error('TransactionSignature model not implemented yet');
+  }
+  static async update(data: any, options?: any): Promise<any> {
+    throw new Error('TransactionSignature model not implemented yet');
+  }
+}
 import WalletModel from '../models/Wallet';
 import WalletSignerModel from '../models/WalletSigner';
 import User from '../models/User';
@@ -233,7 +261,7 @@ export class TransactionService {
         ledgerIndex: transaction.ledger_index,
         requiredWeight: transaction.required_weight,
         collectedWeight: transaction.collected_weight,
-        signatures: transaction.transaction_signatures?.map(sig => ({
+        signatures: transaction.transaction_signatures?.map((sig: any) => ({
           id: sig.id,
           userId: sig.user_id,
           userEmail: sig.user?.email || '',

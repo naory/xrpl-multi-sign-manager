@@ -115,7 +115,14 @@ export class WalletController {
         return;
       }
 
-      const { walletId } = req.params;
+      const walletId = req.params['walletId'];
+      if (!walletId) {
+        res.status(400).json({
+          success: false,
+          message: 'Wallet ID is required'
+        });
+        return;
+      }
 
       const wallet = await this.walletService.getWalletDetails(walletId);
 
@@ -136,7 +143,7 @@ export class WalletController {
     } catch (error) {
       LoggingService.error('Failed to get wallet', {
         userId: req.user?.userId,
-        walletId: req.params.walletId,
+        walletId: req.params['walletId'],
         error: error instanceof Error ? error.message : 'Unknown error'
       });
 
@@ -202,8 +209,16 @@ export class WalletController {
         return;
       }
 
-      const { walletId } = req.params;
+      const walletId = req.params['walletId'];
       const { signerUserId, weight } = req.body;
+      
+      if (!walletId) {
+        res.status(400).json({
+          success: false,
+          message: 'Wallet ID is required'
+        });
+        return;
+      }
 
       if (!signerUserId || !weight) {
         res.status(400).json({
@@ -230,7 +245,7 @@ export class WalletController {
     } catch (error) {
       LoggingService.error('Failed to add signer', {
         userId: req.user?.userId,
-        walletId: req.params.walletId,
+        walletId: req.params['walletId'],
         error: error instanceof Error ? error.message : 'Unknown error'
       });
 
@@ -276,7 +291,16 @@ export class WalletController {
         return;
       }
 
-      const { walletId, signerUserId } = req.params;
+      const walletId = req.params['walletId'];
+      const signerUserId = req.params['signerUserId'];
+      
+      if (!walletId || !signerUserId) {
+        res.status(400).json({
+          success: false,
+          message: 'Wallet ID and signer user ID are required'
+        });
+        return;
+      }
 
       await this.walletService.removeSigner(walletId, signerUserId, userId);
 
@@ -287,8 +311,8 @@ export class WalletController {
     } catch (error) {
       LoggingService.error('Failed to remove signer', {
         userId: req.user?.userId,
-        walletId: req.params.walletId,
-        signerUserId: req.params.signerUserId,
+        walletId: req.params['walletId'],
+        signerUserId: req.params['signerUserId'],
         error: error instanceof Error ? error.message : 'Unknown error'
       });
 
@@ -324,8 +348,17 @@ export class WalletController {
         return;
       }
 
-      const { walletId, signerUserId } = req.params;
+      const walletId = req.params['walletId'];
+      const signerUserId = req.params['signerUserId'];
       const { weight } = req.body;
+      
+      if (!walletId || !signerUserId) {
+        res.status(400).json({
+          success: false,
+          message: 'Wallet ID and signer user ID are required'
+        });
+        return;
+      }
 
       if (!weight || weight <= 0) {
         res.status(400).json({
@@ -381,7 +414,15 @@ export class WalletController {
         return;
       }
 
-      const { walletId } = req.params;
+      const walletId = req.params['walletId'];
+      
+      if (!walletId) {
+        res.status(400).json({
+          success: false,
+          message: 'Wallet ID is required'
+        });
+        return;
+      }
 
       const signers = await this.walletService.getWalletSigners(walletId);
 
@@ -392,7 +433,7 @@ export class WalletController {
     } catch (error) {
       LoggingService.error('Failed to get wallet signers', {
         userId: req.user?.userId,
-        walletId: req.params.walletId,
+        walletId: req.params['walletId'],
         error: error instanceof Error ? error.message : 'Unknown error'
       });
 
@@ -414,8 +455,16 @@ export class WalletController {
         return;
       }
 
-      const { walletId } = req.params;
+      const walletId = req.params['walletId'];
       const { status } = req.body;
+      
+      if (!walletId) {
+        res.status(400).json({
+          success: false,
+          message: 'Wallet ID is required'
+        });
+        return;
+      }
 
       if (!status || !['active', 'inactive', 'suspended'].includes(status)) {
         res.status(400).json({
@@ -425,7 +474,7 @@ export class WalletController {
         return;
       }
 
-      await this.walletService.updateWalletStatus(walletId, status, userId);
+      await this.walletService.updateWalletStatus(walletId, status as string, userId);
 
       res.status(200).json({
         success: true,
@@ -434,7 +483,7 @@ export class WalletController {
     } catch (error) {
       LoggingService.error('Failed to update wallet status', {
         userId: req.user?.userId,
-        walletId: req.params.walletId,
+        walletId: req.params['walletId'],
         error: error instanceof Error ? error.message : 'Unknown error'
       });
 

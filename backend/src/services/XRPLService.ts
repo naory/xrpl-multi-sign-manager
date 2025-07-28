@@ -73,8 +73,7 @@ export class XRPLService {
     };
     
     this.client = new Client(this.config.primaryNode, {
-      connectionTimeout: this.config.connectionTimeout,
-      maxRetries: this.config.retryAttempts
+      connectionTimeout: this.config.connectionTimeout
     });
   }
 
@@ -165,7 +164,7 @@ export class XRPLService {
         address: wallet.address,
         publicKey: wallet.publicKey,
         privateKey: wallet.privateKey,
-        seed: wallet.seed,
+        seed: wallet.seed || '',
         balance: balance.xrpBalance
       };
     } catch (error) {
@@ -354,11 +353,11 @@ export class XRPLService {
       }) as AccountTxResponse;
 
       return response.result.transactions.map(tx => ({
-        hash: tx.tx.hash,
-        ledgerIndex: tx.tx.ledger_index,
-        date: new Date(tx.tx.date * 1000),
-        transactionType: tx.tx.TransactionType,
-        fee: tx.tx.Fee,
+        hash: tx.tx?.hash || '',
+        ledgerIndex: tx.tx?.ledger_index || 0,
+        date: new Date((tx.tx?.date || 0) * 1000),
+        transactionType: tx.tx?.TransactionType || '',
+        fee: tx.tx?.Fee || '',
         validated: tx.validated
       }));
     } catch (error) {

@@ -3,8 +3,43 @@ import { LoggingService } from './LoggingService';
 import { ExternalSigner } from '../models/ExternalSigner';
 import Wallet from '../models/Wallet';
 import { WalletImport } from '../models/WalletImport';
-// import { Transaction } from '../models/Transaction';
-// import { TransactionSignature } from '../models/TransactionSignature';
+// Transaction and TransactionSignature models not yet implemented
+// Using placeholder classes for now
+class Transaction {
+  static async create(data: any): Promise<Transaction> {
+    throw new Error('Transaction model not implemented yet');
+  }
+  static async findByPk(id: string, options?: any): Promise<Transaction | null> {
+    throw new Error('Transaction model not implemented yet');
+  }
+  static async findAll(options?: any): Promise<Transaction[]> {
+    throw new Error('Transaction model not implemented yet');
+  }
+  id!: string;
+  wallet_id!: string;
+  transaction_type!: string;
+  transaction_data!: any;
+  status!: string;
+  created_by!: string;
+  signatures?: TransactionSignature[];
+}
+
+class TransactionSignature {
+  static async create(data: any): Promise<TransactionSignature> {
+    throw new Error('TransactionSignature model not implemented yet');
+  }
+  static async findOne(options?: any): Promise<TransactionSignature | null> {
+    throw new Error('TransactionSignature model not implemented yet');
+  }
+  static async sum(field: string, options?: any): Promise<number> {
+    throw new Error('TransactionSignature model not implemented yet');
+  }
+  id!: string;
+  transaction_id!: string;
+  signer_address!: string;
+  signature!: string;
+  weight!: number;
+}
 
 export interface SignerInfo {
   public_address: string;
@@ -82,7 +117,7 @@ export class MultiSigCoordinatorService {
         wallet_id: wallet.id,
         imported_by: userId,
         import_method: importRequest.import_method,
-        import_metadata: importRequest.import_metadata,
+        import_metadata: importRequest.import_metadata || undefined,
       });
 
       // Import existing signers from XRPL
@@ -142,9 +177,9 @@ export class MultiSigCoordinatorService {
         wallet_id: walletId,
         public_address: signerInfo.public_address,
         weight: signerInfo.weight,
-        nickname: signerInfo.nickname,
-        email: signerInfo.email,
-        wallet_type: signerInfo.wallet_type,
+        nickname: signerInfo.nickname || undefined,
+        email: signerInfo.email || undefined,
+        wallet_type: signerInfo.wallet_type || undefined,
         added_by: userId,
         is_active: true
       });

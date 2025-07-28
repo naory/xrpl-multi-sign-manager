@@ -4,8 +4,8 @@ import { UserWalletConnection } from '../models/UserWalletConnection';
 import { WalletCreationRequest } from '../models/WalletCreationRequest';
 import Wallet from '../models/Wallet';
 import { ExternalSigner } from '../models/ExternalSigner';
-import { WalletImport } from '../models/WalletImport';
-import User from '../models/User';
+// import { WalletImport } from '../models/WalletImport';
+// import User from '../models/User';
 
 export interface WalletConnectionRequest {
   public_address: string;
@@ -84,7 +84,7 @@ export class NewUserOnboardingService {
       const walletConnection = await UserWalletConnection.create({
         user_id: userId,
         public_address: connectionRequest.public_address,
-        wallet_type: connectionRequest.wallet_type || undefined,
+        wallet_type: connectionRequest.wallet_type || 'other',
         nickname: connectionRequest.nickname || undefined,
         is_primary: true, // First connected wallet is primary
         is_verified: true,

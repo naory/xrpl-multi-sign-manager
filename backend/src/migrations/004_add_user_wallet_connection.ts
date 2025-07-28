@@ -175,10 +175,7 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
   await queryInterface.addConstraint('user_wallet_connections', {
     fields: ['user_id', 'is_primary'],
     type: 'unique',
-    name: 'unique_user_primary_wallet',
-    where: {
-      is_primary: true,
-    },
+    name: 'unique_user_primary_wallet'
   });
 }
 
