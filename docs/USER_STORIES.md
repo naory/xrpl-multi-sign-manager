@@ -269,7 +269,75 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
 
 #### User Stories:
 
-**US-019: Real-Time Notifications**
+**US-019: Multi-Signature Wallet Activity Notifications**
+- **As a** Signer
+- **I want to** receive notifications for all MSW activities
+- **So that** I can stay informed about wallet changes and actions
+- **Acceptance Criteria:**
+  - Notify when new transaction is proposed
+  - Notify when signers are added or removed
+  - Notify when signer weights are changed
+  - Notify when transactions are signed by other signers
+  - Notify when transactions are submitted to XRPL
+  - Notify when transactions are cancelled
+  - Notify when wallet configuration changes
+  - Configurable notification preferences per activity type
+  - Real-time delivery via multiple channels (push, email, SMS)
+
+**US-020: Transaction Request Notifications**
+- **As a** Signer
+- **I want to** be notified immediately when a new transaction requires my signature
+- **So that** I can review and sign transactions promptly
+- **Acceptance Criteria:**
+  - Instant notification when transaction is created
+  - Include transaction details (type, amount, destination, memo)
+  - Show urgency level based on transaction type
+  - Include direct link to review transaction
+  - Reminder notifications for unsigned transactions
+  - Escalation notifications for time-sensitive transactions
+  - Notification when transaction is close to expiry
+
+**US-021: Signer Management Notifications**
+- **As a** Signer
+- **I want to** be notified when signer configuration changes
+- **So that** I can be aware of wallet security changes
+- **Acceptance Criteria:**
+  - Notify when new signer is added to wallet
+  - Notify when existing signer is removed
+  - Notify when signer weights are modified
+  - Notify when signer status changes (active/inactive)
+  - Include details of changes (who, what, when)
+  - Require confirmation for critical changes
+  - Notify when quorum requirements change
+
+**US-022: Transaction Status Notifications**
+- **As a** Signer
+- **I want to** receive updates on transaction progress
+- **So that** I can track the status of pending transactions
+- **Acceptance Criteria:**
+  - Notify when transaction receives new signature
+  - Show current signature count vs. required quorum
+  - Notify when transaction reaches quorum threshold
+  - Notify when transaction is submitted to XRPL
+  - Notify when transaction is confirmed on ledger
+  - Notify if transaction fails or is rejected
+  - Include transaction hash and ledger index
+  - Real-time progress updates
+
+**US-023: Security and Compliance Notifications**
+- **As a** Wallet Owner or Signer
+- **I want to** receive security-related notifications
+- **So that** I can respond to potential security issues
+- **Acceptance Criteria:**
+  - Notify of failed signature attempts
+  - Notify of suspicious activity patterns
+  - Notify when wallet is accessed from new device/location
+  - Notify of compliance-related events
+  - Notify when audit logs are generated
+  - Notify of system maintenance or updates
+  - Emergency notifications for critical security events
+
+**US-024: Real-Time Notifications**
 - **As a** User
 - **I want to** receive instant notifications
 - **So that** I can respond quickly to wallet activity
@@ -278,9 +346,11 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
   - Email alerts for important events
   - SMS notifications for critical actions
   - Configurable notification preferences
-  - Notification history
+  - Notification history and management
+  - Do not disturb settings
+  - Notification grouping and prioritization
 
-**US-020: Live Dashboard**
+**US-025: Live Dashboard**
 - **As a** User
 - **I want to** see live wallet activity
 - **So that** I can monitor operations in real-time
@@ -290,8 +360,10 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
   - Active signature count
   - Recent activity feed
   - WebSocket connections
+  - Activity indicators and alerts
+  - Performance metrics
 
-**US-021: WebSocket Integration**
+**US-026: WebSocket Integration**
 - **As a** User
 - **I want to** receive live updates via WebSocket
 - **So that** I can see changes instantly
@@ -301,6 +373,8 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
   - Event-based updates
   - Connection status indicator
   - Fallback to polling
+  - Message queuing for offline users
+  - Efficient data transmission
 
 ---
 
@@ -313,7 +387,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
 
 #### User Stories:
 
-**US-022: No Private Key Storage**
+**US-027: No Private Key Storage**
 - **As a** User
 - **I want to** use the app without sharing private keys
 - **So that** I maintain full control of my assets
@@ -323,7 +397,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
   - Clear non-custodial messaging
   - Security audit transparency
 
-**US-023: Signature Verification**
+**US-028: Signature Verification**
 - **As a** User
 - **I want to** verify signatures are valid
 - **So that** I can trust the multi-sig process
@@ -333,7 +407,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
   - Check signature against transaction
   - Reject invalid signatures
 
-**US-024: Audit Logging**
+**US-029: Audit Logging**
 - **As a** Administrator or Auditor
 - **I want to** view comprehensive audit logs
 - **So that** I can monitor system activity
@@ -344,7 +418,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
   - Search and filter audit logs
   - Export audit logs for compliance
 
-**US-025: Access Control**
+**US-030: Access Control**
 - **As a** User
 - **I want to** control who can manage my wallets
 - **So that** I can maintain security
@@ -365,7 +439,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
 
 #### User Stories:
 
-**US-026: External Wallet Integration**
+**US-031: External Wallet Integration**
 - **As a** User
 - **I want to** connect my existing wallet
 - **So that** I can sign transactions seamlessly
@@ -376,7 +450,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
   - Generic wallet address support
   - Connection status indicators
 
-**US-027: Mobile Responsive Design**
+**US-032: Mobile Responsive Design**
 - **As a** User
 - **I want to** access the app on mobile devices
 - **So that** I can manage wallets on the go
@@ -387,7 +461,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
   - Offline capability
   - Mobile notifications
 
-**US-028: Intuitive Workflow**
+**US-033: Intuitive Workflow**
 - **As a** User
 - **I want to** follow clear workflows
 - **So that** I can use the app effectively
@@ -409,7 +483,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
 
 #### User Stories:
 
-**US-029: Transaction Analytics**
+**US-034: Transaction Analytics**
 - **As a** User
 - **I want to** analyze transaction patterns
 - **So that** I can understand wallet usage
@@ -420,7 +494,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
   - Success rate tracking
   - Performance metrics
 
-**US-030: Signer Performance**
+**US-035: Signer Performance**
 - **As a** Wallet Owner
 - **I want to** track signer performance
 - **So that** I can optimize signer management
@@ -431,7 +505,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
   - Performance comparisons
   - Improvement suggestions
 
-**US-031: Export Reports**
+**US-036: Export Reports**
 - **As a** User
 - **I want to** export wallet reports
 - **So that** I can maintain records
@@ -453,7 +527,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
 
 #### User Stories:
 
-**US-032: RESTful API**
+**US-037: RESTful API**
 - **As a** Developer
 - **I want to** access coordination features via API
 - **So that** I can build custom integrations
@@ -464,7 +538,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
   - Comprehensive documentation
   - SDK libraries
 
-**US-033: Webhook Notifications**
+**US-038: Webhook Notifications**
 - **As a** Developer
 - **I want to** receive webhook notifications
 - **So that** I can integrate with external systems
@@ -475,7 +549,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
   - Webhook security (signatures)
   - Webhook management interface
 
-**US-034: Third-Party Integrations**
+**US-039: Third-Party Integrations**
 - **As a** Administrator
 - **I want to** integrate with third-party services
 - **So that** I can enhance functionality
@@ -497,7 +571,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
 
 #### User Stories:
 
-**US-035: Smart Contract Integration**
+**US-040: Smart Contract Integration**
 - **As a** Developer
 - **I want to** coordinate smart contract interactions
 - **So that** I can manage complex DeFi operations
@@ -508,7 +582,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
   - Contract monitoring
   - Contract templates
 
-**US-036: Advanced Workflows**
+**US-041: Advanced Workflows**
 - **As a** User
 - **I want to** create complex approval workflows
 - **So that** I can handle sophisticated business processes
@@ -519,7 +593,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
   - Escalation workflows
   - Custom workflow builder
 
-**US-037: Advanced Analytics**
+**US-042: Advanced Analytics**
 - **As a** User
 - **I want to** access advanced analytics
 - **So that** I can make data-driven decisions
