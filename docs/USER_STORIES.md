@@ -13,6 +13,81 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
 
 ---
 
+## New User Onboarding
+
+### Epic: New User Wallet Creation
+**As a** New User  
+**I want to** create my first multi-signature wallet with guided setup  
+**So that** I can easily get started with multi-sig security
+
+#### User Stories:
+
+**US-001: Guided Wallet Creation for Newbies**
+- **As a** New User
+- **I want to** create a new multi-signature wallet with step-by-step guidance
+- **So that** I can easily set up my first multi-sig wallet
+- **Acceptance Criteria:**
+  - Guided wizard interface with clear steps
+  - System generates new XRPL wallet with master key
+  - User provides wallet name and description
+  - System explains each step in simple terms
+  - Progress indicator shows completion status
+  - Option to skip tutorial for experienced users
+
+**US-002: Master Key Blackholing Process**
+- **As a** New User
+- **I want to** blackhole the master key after setup
+- **So that** I ensure true multi-signature security
+- **Acceptance Criteria:**
+  - System creates blackhole transaction automatically
+  - User reviews blackhole transaction details
+  - Clear explanation of what blackholing means
+  - Confirmation dialog with security warnings
+  - Transaction submitted to XRPL
+  - Confirmation that master key is destroyed
+  - Audit trail of blackhole process
+
+**US-003: Initial Signer Setup**
+- **As a** New User
+- **I want to** add my first signers after wallet creation
+- **So that** I can start using the multi-sig wallet
+- **Acceptance Criteria:**
+  - Guided signer addition process
+  - Add signers by public address
+  - Assign weights to each signer
+  - Set quorum requirements
+  - Preview multi-sig configuration
+  - Submit signer list to XRPL
+  - Confirmation of successful setup
+
+**US-004: Wallet Connection During Signup**
+- **As a** New User
+- **I want to** connect my wallet during account creation
+- **So that** my signer address is automatically stored
+- **Acceptance Criteria:**
+  - Wallet connection option during registration
+  - Support for Ledger, Xaman, XUMM, and other wallets
+  - Verify wallet ownership through signature
+  - Store verified signer address
+  - Option to add multiple wallets
+  - Skip option for users without wallets
+  - Clear privacy and security explanations
+
+**US-005: Post-Setup Tutorial**
+- **As a** New User
+- **I want to** learn how to use my new multi-sig wallet
+- **So that** I can confidently manage my assets
+- **Acceptance Criteria:**
+  - Interactive tutorial after wallet setup
+  - Step-by-step walkthrough of key features
+  - Practice transaction creation
+  - Explanation of signature process
+  - Security best practices guide
+  - FAQ and help resources
+  - Option to replay tutorial later
+
+---
+
 ## Wallet Import & Setup
 
 ### Epic: Wallet Import
@@ -22,18 +97,18 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
 
 #### User Stories:
 
-**US-001: Import Existing Multi-Sig Wallet**
+**US-006: Import Existing Multi-Sig Wallet**
 - **As a** Wallet Owner
 - **I want to** import my existing multi-signature wallet by address
 - **So that** I can start coordinating transactions immediately
 - **Acceptance Criteria:**
   - User can enter multi-sig wallet address
-  - System verifies wallet exists on XRPL and is multi-sig
+  - System verifies wallet exists and is multi-sig
   - System imports existing signers and quorum settings
   - User can provide wallet name and description
   - Import is logged and verified
 
-**US-002: Import via QR Code**
+**US-007: Import via QR Code**
 - **As a** Wallet Owner
 - **I want to** import wallet by scanning QR code
 - **So that** I can quickly import wallets from mobile apps
@@ -43,7 +118,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
   - Automatic wallet verification
   - Import metadata storage
 
-**US-003: Verify Wallet Ownership**
+**US-008: Verify Wallet Ownership**
 - **As a** Wallet Owner
 - **I want to** verify I own the imported wallet
 - **So that** I can prove ownership and access management features
@@ -53,7 +128,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
   - Mark wallet as verified
   - Enable full management features
 
-**US-004: Network Selection**
+**US-009: Network Selection**
 - **As a** Wallet Owner
 - **I want to** specify the XRPL network for my wallet
 - **So that** I can manage wallets on different networks
@@ -74,7 +149,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
 
 #### User Stories:
 
-**US-005: Add External Signer**
+**US-010: Add External Signer**
 - **As a** Wallet Owner
 - **I want to** add signers by their public address
 - **So that** I can include users with their own wallets
@@ -85,7 +160,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
   - Specify wallet type (Ledger, Xaman, etc.)
   - Update XRPL signer list automatically
 
-**US-006: Remove External Signer**
+**US-011: Remove External Signer**
 - **As a** Wallet Owner
 - **I want to** remove signers from the wallet
 - **So that** I can revoke access when needed
@@ -96,7 +171,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
   - Notify removed signer
   - Log removal in audit trail
 
-**US-007: Update Signer Weight**
+**US-012: Update Signer Weight**
 - **As a** Wallet Owner
 - **I want to** change signer weights
 - **So that** I can adjust signing authority distribution
@@ -107,7 +182,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
   - Notify affected signers
   - Log changes in audit trail
 
-**US-008: Signer Status Management**
+**US-013: Signer Status Management**
 - **As a** Wallet Owner
 - **I want to** temporarily disable signers
 - **So that** I can manage access during absences
@@ -128,7 +203,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
 
 #### User Stories:
 
-**US-009: Create Transaction Proposal**
+**US-014: Create Transaction Proposal**
 - **As a** Wallet Owner or Authorized User
 - **I want to** create a transaction proposal
 - **So that** I can initiate multi-sig transactions
@@ -140,7 +215,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
   - Preview transaction details
   - Submit for signature collection
 
-**US-010: View Pending Transactions**
+**US-015: View Pending Transactions**
 - **As a** Signer
 - **I want to** see transactions requiring my signature
 - **So that** I can review and sign pending transactions
@@ -151,7 +226,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
   - Filter by transaction type and date
   - Real-time updates
 
-**US-011: Sign Transaction with External Wallet**
+**US-016: Sign Transaction with External Wallet**
 - **As a** Signer
 - **I want to** sign transactions using my own wallet
 - **So that** I can contribute to multi-sig approval
@@ -162,7 +237,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
   - See real-time progress toward quorum
   - Receive notification when transaction is submitted
 
-**US-012: Track Signature Progress**
+**US-017: Track Signature Progress**
 - **As a** Wallet Owner or Signer
 - **I want to** track signature collection progress
 - **So that** I can monitor transaction status
@@ -173,7 +248,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
   - Progress bar visualization
   - Automatic submission when quorum met
 
-**US-013: Cancel Pending Transaction**
+**US-018: Cancel Pending Transaction**
 - **As a** Transaction Initiator
 - **I want to** cancel pending transactions
 - **So that** I can stop transactions that are no longer needed
@@ -194,7 +269,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
 
 #### User Stories:
 
-**US-014: Real-Time Notifications**
+**US-019: Real-Time Notifications**
 - **As a** User
 - **I want to** receive instant notifications
 - **So that** I can respond quickly to wallet activity
@@ -205,7 +280,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
   - Configurable notification preferences
   - Notification history
 
-**US-015: Live Dashboard**
+**US-020: Live Dashboard**
 - **As a** User
 - **I want to** see live wallet activity
 - **So that** I can monitor operations in real-time
@@ -216,7 +291,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
   - Recent activity feed
   - WebSocket connections
 
-**US-016: WebSocket Integration**
+**US-021: WebSocket Integration**
 - **As a** User
 - **I want to** receive live updates via WebSocket
 - **So that** I can see changes instantly
@@ -238,7 +313,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
 
 #### User Stories:
 
-**US-017: No Private Key Storage**
+**US-022: No Private Key Storage**
 - **As a** User
 - **I want to** use the app without sharing private keys
 - **So that** I maintain full control of my assets
@@ -248,7 +323,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
   - Clear non-custodial messaging
   - Security audit transparency
 
-**US-018: Signature Verification**
+**US-023: Signature Verification**
 - **As a** User
 - **I want to** verify signatures are valid
 - **So that** I can trust the multi-sig process
@@ -258,7 +333,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
   - Check signature against transaction
   - Reject invalid signatures
 
-**US-019: Audit Logging**
+**US-024: Audit Logging**
 - **As a** Administrator or Auditor
 - **I want to** view comprehensive audit logs
 - **So that** I can monitor system activity
@@ -269,7 +344,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
   - Search and filter audit logs
   - Export audit logs for compliance
 
-**US-020: Access Control**
+**US-025: Access Control**
 - **As a** User
 - **I want to** control who can manage my wallets
 - **So that** I can maintain security
@@ -290,7 +365,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
 
 #### User Stories:
 
-**US-021: External Wallet Integration**
+**US-026: External Wallet Integration**
 - **As a** User
 - **I want to** connect my existing wallet
 - **So that** I can sign transactions seamlessly
@@ -301,7 +376,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
   - Generic wallet address support
   - Connection status indicators
 
-**US-022: Mobile Responsive Design**
+**US-027: Mobile Responsive Design**
 - **As a** User
 - **I want to** access the app on mobile devices
 - **So that** I can manage wallets on the go
@@ -312,7 +387,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
   - Offline capability
   - Mobile notifications
 
-**US-023: Intuitive Workflow**
+**US-028: Intuitive Workflow**
 - **As a** User
 - **I want to** follow clear workflows
 - **So that** I can use the app effectively
@@ -334,7 +409,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
 
 #### User Stories:
 
-**US-024: Transaction Analytics**
+**US-029: Transaction Analytics**
 - **As a** User
 - **I want to** analyze transaction patterns
 - **So that** I can understand wallet usage
@@ -345,7 +420,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
   - Success rate tracking
   - Performance metrics
 
-**US-025: Signer Performance**
+**US-030: Signer Performance**
 - **As a** Wallet Owner
 - **I want to** track signer performance
 - **So that** I can optimize signer management
@@ -356,7 +431,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
   - Performance comparisons
   - Improvement suggestions
 
-**US-026: Export Reports**
+**US-031: Export Reports**
 - **As a** User
 - **I want to** export wallet reports
 - **So that** I can maintain records
@@ -378,7 +453,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
 
 #### User Stories:
 
-**US-027: RESTful API**
+**US-032: RESTful API**
 - **As a** Developer
 - **I want to** access coordination features via API
 - **So that** I can build custom integrations
@@ -389,7 +464,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
   - Comprehensive documentation
   - SDK libraries
 
-**US-028: Webhook Notifications**
+**US-033: Webhook Notifications**
 - **As a** Developer
 - **I want to** receive webhook notifications
 - **So that** I can integrate with external systems
@@ -400,7 +475,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
   - Webhook security (signatures)
   - Webhook management interface
 
-**US-029: Third-Party Integrations**
+**US-034: Third-Party Integrations**
 - **As a** Administrator
 - **I want to** integrate with third-party services
 - **So that** I can enhance functionality
@@ -422,7 +497,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
 
 #### User Stories:
 
-**US-030: Smart Contract Integration**
+**US-035: Smart Contract Integration**
 - **As a** Developer
 - **I want to** coordinate smart contract interactions
 - **So that** I can manage complex DeFi operations
@@ -433,7 +508,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
   - Contract monitoring
   - Contract templates
 
-**US-031: Advanced Workflows**
+**US-036: Advanced Workflows**
 - **As a** User
 - **I want to** create complex approval workflows
 - **So that** I can handle sophisticated business processes
@@ -444,7 +519,7 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
   - Escalation workflows
   - Custom workflow builder
 
-**US-032: Advanced Analytics**
+**US-037: Advanced Analytics**
 - **As a** User
 - **I want to** access advanced analytics
 - **So that** I can make data-driven decisions
@@ -492,22 +567,24 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
 ## Story Mapping
 
 ### User Journey
-1. **Onboarding**: Registration → Import existing wallet → Verify ownership → Add signers
-2. **Daily Operations**: Login → View pending transactions → Sign with external wallet → Monitor progress
-3. **Management**: Add/remove signers → Update configurations → Generate reports → Monitor security
-4. **Advanced Usage**: API integration → Webhook setup → Analytics review → Performance optimization
+1. **New User Onboarding**: Registration → Wallet connection → Guided wallet creation → Blackhole master key → Add signers → Tutorial
+2. **Existing User**: Login → Import existing wallet → Verify ownership → Add signers
+3. **Daily Operations**: Login → View pending transactions → Sign with external wallet → Monitor progress
+4. **Management**: Add/remove signers → Update configurations → Generate reports → Monitor security
+5. **Advanced Usage**: API integration → Webhook setup → Analytics review → Performance optimization
 
 ### Priority Levels
-- **High Priority**: Wallet import, signer management, transaction coordination, real-time updates
+- **High Priority**: New user onboarding, wallet import, signer management, transaction coordination, real-time updates
 - **Medium Priority**: Advanced analytics, API access, third-party integrations
 - **Low Priority**: Nice-to-have features, advanced workflows, future enhancements
 
 ### Dependencies
-- Authentication system must be in place before wallet import
+- Authentication system must be in place before wallet import/creation
 - XRPL integration must be complete before transaction coordination
 - Database schema must be finalized before implementation
 - Security framework must be established before sensitive operations
 - WebSocket infrastructure must be in place for real-time features
+- Wallet connection infrastructure must be in place for signup flow
 
 ---
 
@@ -535,4 +612,10 @@ This document contains user stories for the XRPL Multi-Signature Coordinator app
 - Role-based access control
 - Comprehensive audit logging
 - API access for integrations
-- Compliance and reporting features 
+- Compliance and reporting features
+
+### 🆕 **New User Friendly**
+- Guided wallet creation process
+- Step-by-step tutorials
+- Wallet connection during signup
+- Master key blackholing automation 
