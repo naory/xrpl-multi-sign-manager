@@ -10,16 +10,16 @@ import sequelize from '../config/database';
 
 interface WalletAttributes {
   id: string;
+  user_id: string;
   name: string;
   description?: string;
-  xrpl_address: string;
-  master_key_id: string;
-  signature_scheme: string;
-  required_signatures: number;
-  total_signers: number;
-  status: string;
-  balance_xrp: number;
-  balance_usd: number;
+  address: string;
+  network: 'testnet' | 'mainnet' | 'devnet';
+  signature_scheme: 'multi_sign' | 'weighted';
+  quorum: number;
+  is_imported: boolean;
+  import_verified: boolean;
+  status: 'active' | 'inactive' | 'suspended';
   last_balance_update?: Date;
   created_at: Date;
   updated_at: Date;
@@ -29,16 +29,16 @@ interface WalletCreationAttributes extends Optional<WalletAttributes, 'id' | 'cr
 
 class Wallet extends Model<WalletAttributes, WalletCreationAttributes> implements WalletAttributes {
   public id!: string;
+  public user_id!: string;
   public name!: string;
   public description?: string;
-  public xrpl_address!: string;
-  public master_key_id!: string;
-  public signature_scheme!: string;
-  public required_signatures!: number;
-  public total_signers!: number;
-  public status!: string;
-  public balance_xrp!: number;
-  public balance_usd!: number;
+  public address!: string;
+  public network!: 'testnet' | 'mainnet' | 'devnet';
+  public signature_scheme!: 'multi_sign' | 'weighted';
+  public quorum!: number;
+  public is_imported!: boolean;
+  public import_verified!: boolean;
+  public status!: 'active' | 'inactive' | 'suspended';
   public last_balance_update?: Date;
   public created_at!: Date;
   public updated_at!: Date;
@@ -50,12 +50,27 @@ class Wallet extends Model<WalletAttributes, WalletCreationAttributes> implement
 
   // Virtual getter for signature scheme description
   get signatureSchemeDescription(): string {
-    return `${this.required_signatures}-of-${this.total_signers}`;
+    return this.signature_scheme === 'weighted' ? 'Weighted Multi-Signature' : 'Multi-Signature';
   }
 
-  // Virtual getter for total balance in USD
-  get totalBalanceUSD(): number {
-    return this.balance_usd;
+  // Virtual getter for network display name
+  get networkDisplayName(): string {
+    switch (this.network) {
+      case 'mainnet':
+        return 'Mainnet';
+      case 'testnet':
+        return 'Testnet';
+      case 'devnet':
+        return 'Devnet';
+      default:
+        return 'Unknown';
+    }
+  }
+
+  // Virtual getter for import status
+  get importStatus(): string {
+    if (!this.is_imported) return 'Created';
+    return this.import_verified ? 'Verified' : 'Pending Verification';
   }
 }
 
@@ -66,72 +81,68 @@ Wallet.init(
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
+    user_id: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: 'users',
+        key: 'id',
+      },
+      onUpdate: 'CASCADE',
+      onDelete: 'CASCADE',
+    },
     name: {
       type: DataTypes.STRING(255),
       allowNull: false,
+      validate: {
+        len: [1, 255],
+      },
     },
     description: {
       type: DataTypes.TEXT,
       allowNull: true,
     },
-    xrpl_address: {
-      type: DataTypes.STRING(255),
+    address: {
+      type: DataTypes.STRING(34),
       allowNull: false,
       unique: true,
       validate: {
-        len: [25, 35], // XRPL addresses are typically 25-35 characters
+        len: [25, 34], // XRPL addresses are 25-34 characters
+        is: /^r[a-zA-Z0-9]{24,33}$/, // XRPL address format
       },
     },
-    master_key_id: {
-      type: DataTypes.UUID,
+    network: {
+      type: DataTypes.ENUM('testnet', 'mainnet', 'devnet'),
       allowNull: false,
+      defaultValue: 'testnet',
     },
     signature_scheme: {
-      type: DataTypes.STRING(50),
+      type: DataTypes.ENUM('multi_sign', 'weighted'),
       allowNull: false,
-      validate: {
-        isIn: [['2-of-3', '3-of-5', '4-of-7', 'weighted']],
-      },
+      defaultValue: 'weighted',
     },
-    required_signatures: {
+    quorum: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
         min: 1,
-        max: 32, // XRPL limit
+        max: 255, // XRPL limit for total weight
       },
     },
-    total_signers: {
-      type: DataTypes.INTEGER,
+    is_imported: {
+      type: DataTypes.BOOLEAN,
       allowNull: false,
-      validate: {
-        min: 1,
-        max: 32, // XRPL limit
-      },
+      defaultValue: false,
+    },
+    import_verified: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
     },
     status: {
-      type: DataTypes.STRING(50),
+      type: DataTypes.ENUM('active', 'inactive', 'suspended'),
       allowNull: false,
       defaultValue: 'active',
-      validate: {
-        isIn: [['active', 'inactive', 'suspended', 'deleted']],
-      },
-    },
-    balance_xrp: {
-      type: DataTypes.DECIMAL(20, 6),
-      allowNull: false,
-      defaultValue: 0,
-      validate: {
-        min: 0,
-      },
-    },
-    balance_usd: {
-      type: DataTypes.DECIMAL(20, 2),
-      allowNull: false,
-      defaultValue: 0,
-      validate: {
-        min: 0,
-      },
     },
     last_balance_update: {
       type: DataTypes.DATE,
@@ -156,13 +167,19 @@ Wallet.init(
     updatedAt: 'updated_at',
     indexes: [
       {
-        fields: ['xrpl_address'],
+        fields: ['address'],
+      },
+      {
+        fields: ['user_id'],
       },
       {
         fields: ['status'],
       },
       {
-        fields: ['master_key_id'],
+        fields: ['network'],
+      },
+      {
+        fields: ['is_imported'],
       },
     ],
   }

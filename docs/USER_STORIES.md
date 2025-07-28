@@ -1,153 +1,102 @@
-# User Stories - XRPL Multi-Signature Wallet Manager
+# User Stories - XRPL Multi-Signature Coordinator
 
 ## Overview
-This document contains user stories for the XRPL Multi-Signature Wallet Manager application. These stories are organized by user roles and functionality areas to provide a clear understanding of the system's capabilities and user experience.
+This document contains user stories for the XRPL Multi-Signature Coordinator application. The app focuses on **coordinating multi-signature workflows** rather than storing private keys, allowing users to manage multi-sig wallets using their existing trusted wallets (Ledger, Xaman, etc.).
 
 ## User Roles
 
 ### Primary Users
-- **Wallet Owner**: The person who creates and manages the multi-signature wallet
-- **Signer**: A user who has signing authority for transactions
+- **Wallet Owner**: The person who imports and manages the multi-signature wallet
+- **Signer**: A user who has signing authority for transactions (using their own wallet)
 - **Administrator**: System administrator with oversight capabilities
 - **Auditor**: Compliance and security personnel
 
 ---
 
-## Wallet Creation & Setup
+## Wallet Import & Setup
 
-### Epic: Wallet Creation
+### Epic: Wallet Import
 **As a** Wallet Owner  
-**I want to** create a new multi-signature wallet  
-**So that** I can securely manage XRPL assets with multiple signers
+**I want to** import my existing multi-signature wallet  
+**So that** I can coordinate multi-sig operations without storing private keys
 
 #### User Stories:
 
-**US-001: Create Basic Wallet**
+**US-001: Import Existing Multi-Sig Wallet**
 - **As a** Wallet Owner
-- **I want to** create a new multi-signature wallet with a name and description
-- **So that** I can organize my XRPL assets
+- **I want to** import my existing multi-signature wallet by address
+- **So that** I can start coordinating transactions immediately
 - **Acceptance Criteria:**
-  - User can provide wallet name and optional description
-  - System generates a new XRPL address
-  - Wallet is created with default settings
-  - User receives confirmation with wallet details
+  - User can enter multi-sig wallet address
+  - System verifies wallet exists on XRPL and is multi-sig
+  - System imports existing signers and quorum settings
+  - User can provide wallet name and description
+  - Import is logged and verified
 
-**US-002: Configure Multi-Signature Settings**
+**US-002: Import via QR Code**
 - **As a** Wallet Owner
-- **I want to** set up signers and quorum requirements
-- **So that** I can control who can sign transactions and how many signatures are needed
+- **I want to** import wallet by scanning QR code
+- **So that** I can quickly import wallets from mobile apps
 - **Acceptance Criteria:**
-  - User can add multiple signers by email/user ID
-  - User can assign weight to each signer (1-255)
-  - User can set quorum (minimum total weight required)
-  - System validates that quorum doesn't exceed total signer weight
-  - Multi-signature is configured on XRPL
+  - Camera access for QR code scanning
+  - QR code validation and parsing
+  - Automatic wallet verification
+  - Import metadata storage
 
-**US-003: Choose Network**
+**US-003: Verify Wallet Ownership**
 - **As a** Wallet Owner
-- **I want to** select the XRPL network (testnet/mainnet)
-- **So that** I can use the appropriate network for my use case
+- **I want to** verify I own the imported wallet
+- **So that** I can prove ownership and access management features
 - **Acceptance Criteria:**
-  - User can select from testnet, mainnet, or devnet
-  - System creates wallet on the selected network
-  - Testnet wallets are automatically funded
-  - Clear warnings about network selection
+  - Sign verification message with any signer wallet
+  - Verify signature matches imported signer
+  - Mark wallet as verified
+  - Enable full management features
 
-**US-004: Wallet Templates**
+**US-004: Network Selection**
 - **As a** Wallet Owner
-- **I want to** use predefined wallet templates
-- **So that** I can quickly set up common multi-signature configurations
+- **I want to** specify the XRPL network for my wallet
+- **So that** I can manage wallets on different networks
 - **Acceptance Criteria:**
-  - Templates for 2-of-3, 3-of-5, 5-of-7 configurations
-  - Custom template creation and saving
-  - Template sharing between users
-  - Quick setup from templates
-
----
-
-## Wallet Management
-
-### Epic: Wallet Operations
-**As a** Wallet Owner  
-**I want to** manage my wallet configuration and settings  
-**So that** I can maintain control and adapt to changing needs
-
-#### User Stories:
-
-**US-005: View Wallet Details**
-- **As a** Wallet Owner or Signer
-- **I want to** view comprehensive wallet information
-- **So that** I can understand the wallet's current state and configuration
-- **Acceptance Criteria:**
-  - Display wallet address, name, and description
-  - Show current XRP and token balances
-  - List all signers with their weights and status
-  - Display quorum requirements
-  - Show wallet creation date and last activity
-
-**US-006: Update Wallet Information**
-- **As a** Wallet Owner
-- **I want to** update wallet name and description
-- **So that** I can keep wallet information current
-- **Acceptance Criteria:**
-  - Edit wallet name and description
-  - Changes are logged in audit trail
-  - Real-time updates for all signers
-
-**US-007: Wallet Status Management**
-- **As a** Wallet Owner
-- **I want to** change wallet status (active/inactive/suspended)
-- **So that** I can control wallet operations based on business needs
-- **Acceptance Criteria:**
-  - Toggle between active, inactive, and suspended states
-  - Inactive wallets cannot initiate new transactions
-  - Suspended wallets require admin approval to reactivate
-  - Status changes are logged and notified to signers
-
-**US-008: Wallet Backup**
-- **As a** Wallet Owner
-- **I want to** create and download wallet backup
-- **So that** I can recover wallet access if needed
-- **Acceptance Criteria:**
-  - Generate encrypted backup file
-  - Include wallet configuration and signer information
-  - Secure download with expiration
-  - Backup verification process
+  - Select from testnet, mainnet, or devnet
+  - Network-specific validation
+  - Clear network indicators in UI
+  - Network-specific transaction building
 
 ---
 
 ## Signer Management
 
-### Epic: Signer Operations
+### Epic: External Signer Operations
 **As a** Wallet Owner  
-**I want to** manage signers and their permissions  
-**So that** I can maintain appropriate access control
+**I want to** manage signers by their public addresses  
+**So that** I can coordinate with users who have their own wallets
 
 #### User Stories:
 
-**US-009: Add New Signer**
+**US-005: Add External Signer**
 - **As a** Wallet Owner
-- **I want to** add new signers to the wallet
-- **So that** I can expand the signing authority
+- **I want to** add signers by their public address
+- **So that** I can include users with their own wallets
 - **Acceptance Criteria:**
-  - Add signer by email or user ID
-  - Assign weight to new signer
-  - Validate that user exists in system
-  - Send invitation to new signer
-  - Update XRPL signer list
+  - Add signer by XRPL address
+  - Assign weight to signer (1-255)
+  - Add nickname and email for identification
+  - Specify wallet type (Ledger, Xaman, etc.)
+  - Update XRPL signer list automatically
 
-**US-010: Remove Signer**
+**US-006: Remove External Signer**
 - **As a** Wallet Owner
 - **I want to** remove signers from the wallet
 - **So that** I can revoke access when needed
 - **Acceptance Criteria:**
-  - Remove signer by user ID
-  - Validate that quorum can still be met
+  - Remove signer by address
+  - Validate quorum can still be met
   - Update XRPL signer list
   - Notify removed signer
   - Log removal in audit trail
 
-**US-011: Update Signer Weight**
+**US-007: Update Signer Weight**
 - **As a** Wallet Owner
 - **I want to** change signer weights
 - **So that** I can adjust signing authority distribution
@@ -158,10 +107,10 @@ This document contains user stories for the XRPL Multi-Signature Wallet Manager 
   - Notify affected signers
   - Log changes in audit trail
 
-**US-012: Signer Status Management**
+**US-008: Signer Status Management**
 - **As a** Wallet Owner
 - **I want to** temporarily disable signers
-- **So that** I can manage access during absences or security concerns
+- **So that** I can manage access during absences
 - **Acceptance Criteria:**
   - Toggle signer status (active/inactive)
   - Inactive signers cannot sign transactions
@@ -170,81 +119,61 @@ This document contains user stories for the XRPL Multi-Signature Wallet Manager 
 
 ---
 
-## Transaction Management
+## Transaction Coordination
 
-### Epic: Transaction Operations
+### Epic: Transaction Workflow
 **As a** Wallet Owner or Signer  
-**I want to** create and manage transactions  
-**So that** I can perform XRPL operations securely
+**I want to** coordinate multi-signature transactions  
+**So that** I can execute XRPL operations securely
 
 #### User Stories:
 
-**US-013: Create Payment Transaction**
+**US-009: Create Transaction Proposal**
 - **As a** Wallet Owner or Authorized User
-- **I want to** create a payment transaction
-- **So that** I can send XRP or tokens to other addresses
+- **I want to** create a transaction proposal
+- **So that** I can initiate multi-sig transactions
 - **Acceptance Criteria:**
-  - Specify destination address
-  - Enter amount and currency (XRP or token)
-  - Add optional memo/note
+  - Select transaction type (Payment, TrustSet, DEX, etc.)
+  - Fill transaction details (amount, destination, etc.)
+  - Add memo/note for context
   - Set transaction fee
   - Preview transaction details
-  - Submit for multi-signature approval
+  - Submit for signature collection
 
-**US-014: Create Trust Line**
-- **As a** Wallet Owner or Authorized User
-- **I want to** create a trust line for a token
-- **So that** I can hold and transact with that token
-- **Acceptance Criteria:**
-  - Specify token currency and issuer
-  - Set trust limit
-  - Preview trust line details
-  - Submit for multi-signature approval
-
-**US-015: Create DEX Offer**
-- **As a** Wallet Owner or Authorized User
-- **I want to** create a DEX offer
-- **So that** I can trade tokens on the XRPL DEX
-- **Acceptance Criteria:**
-  - Specify token pair (TakerGets/TakerPays)
-  - Set exchange rate and amount
-  - Choose offer type (buy/sell)
-  - Preview offer details
-  - Submit for multi-signature approval
-
-**US-016: Cancel DEX Offer**
-- **As a** Wallet Owner or Authorized User
-- **I want to** cancel an existing DEX offer
-- **So that** I can remove offers that are no longer desired
-- **Acceptance Criteria:**
-  - View existing offers
-  - Select offer to cancel
-  - Preview cancellation details
-  - Submit for multi-signature approval
-
-**US-017: Sign Transaction**
+**US-010: View Pending Transactions**
 - **As a** Signer
-- **I want to** sign pending transactions
-- **So that** I can contribute to the multi-signature approval process
+- **I want to** see transactions requiring my signature
+- **So that** I can review and sign pending transactions
 - **Acceptance Criteria:**
-  - View pending transactions requiring my signature
+  - List all pending transactions for my wallets
+  - Show transaction details and progress
+  - Display current signature count vs. required
+  - Filter by transaction type and date
+  - Real-time updates
+
+**US-011: Sign Transaction with External Wallet**
+- **As a** Signer
+- **I want to** sign transactions using my own wallet
+- **So that** I can contribute to multi-sig approval
+- **Acceptance Criteria:**
   - Review transaction details
-  - Provide signature approval
+  - Sign with Ledger, Xaman, or other wallet
+  - Submit signature and public key
   - See real-time progress toward quorum
   - Receive notification when transaction is submitted
 
-**US-018: View Transaction History**
+**US-012: Track Signature Progress**
 - **As a** Wallet Owner or Signer
-- **I want to** view transaction history
-- **So that** I can track wallet activity and verify transactions
+- **I want to** track signature collection progress
+- **So that** I can monitor transaction status
 - **Acceptance Criteria:**
-  - List all transactions with status
-  - Filter by transaction type, date, status
-  - View detailed transaction information
-  - See signature details for each transaction
-  - Export transaction history
+  - Real-time signature count display
+  - Show which signers have signed
+  - Display remaining weight needed
+  - Progress bar visualization
+  - Automatic submission when quorum met
 
-**US-019: Cancel Pending Transaction**
+**US-013: Cancel Pending Transaction**
 - **As a** Transaction Initiator
 - **I want to** cancel pending transactions
 - **So that** I can stop transactions that are no longer needed
@@ -256,40 +185,83 @@ This document contains user stories for the XRPL Multi-Signature Wallet Manager 
 
 ---
 
-## Security & Compliance
+## Real-Time Coordination
 
-### Epic: Security Features
+### Epic: Live Updates
 **As a** User  
-**I want to** ensure my wallet and transactions are secure  
-**So that** I can trust the system with my assets
+**I want to** receive real-time updates  
+**So that** I can stay informed about wallet activity
 
 #### User Stories:
 
-**US-020: Multi-Factor Authentication**
+**US-014: Real-Time Notifications**
 - **As a** User
-- **I want to** use multi-factor authentication
-- **So that** I can add an extra layer of security to my account
+- **I want to** receive instant notifications
+- **So that** I can respond quickly to wallet activity
 - **Acceptance Criteria:**
-  - Enable TOTP-based MFA
-  - Require MFA for sensitive operations
-  - Backup codes for account recovery
-  - MFA status visible in profile
+  - Push notifications for new transactions
+  - Email alerts for important events
+  - SMS notifications for critical actions
+  - Configurable notification preferences
+  - Notification history
 
-**US-021: Session Management**
+**US-015: Live Dashboard**
 - **As a** User
-- **I want to** manage my active sessions
-- **So that** I can control access to my account
+- **I want to** see live wallet activity
+- **So that** I can monitor operations in real-time
 - **Acceptance Criteria:**
-  - View all active sessions
-  - See device and location information
-  - Terminate individual sessions
-  - Terminate all sessions except current
-  - Session timeout configuration
+  - Live balance updates
+  - Real-time transaction status
+  - Active signature count
+  - Recent activity feed
+  - WebSocket connections
 
-**US-022: Audit Logging**
+**US-016: WebSocket Integration**
+- **As a** User
+- **I want to** receive live updates via WebSocket
+- **So that** I can see changes instantly
+- **Acceptance Criteria:**
+  - WebSocket connection for real-time data
+  - Automatic reconnection on disconnect
+  - Event-based updates
+  - Connection status indicator
+  - Fallback to polling
+
+---
+
+## Security & Compliance
+
+### Epic: Non-Custodial Security
+**As a** User  
+**I want to** ensure security without storing private keys  
+**So that** I can trust the system with my coordination needs
+
+#### User Stories:
+
+**US-017: No Private Key Storage**
+- **As a** User
+- **I want to** use the app without sharing private keys
+- **So that** I maintain full control of my assets
+- **Acceptance Criteria:**
+  - No private key collection or storage
+  - All signatures submitted externally
+  - Clear non-custodial messaging
+  - Security audit transparency
+
+**US-018: Signature Verification**
+- **As a** User
+- **I want to** verify signatures are valid
+- **So that** I can trust the multi-sig process
+- **Acceptance Criteria:**
+  - Verify signatures match signer addresses
+  - Validate signature format
+  - Check signature against transaction
+  - Reject invalid signatures
+
+**US-019: Audit Logging**
 - **As a** Administrator or Auditor
 - **I want to** view comprehensive audit logs
-- **So that** I can monitor system activity and ensure compliance
+- **So that** I can monitor system activity
 - **Acceptance Criteria:**
   - Log all wallet operations
   - Log all transaction activities
@@ -297,109 +269,97 @@ This document contains user stories for the XRPL Multi-Signature Wallet Manager 
   - Search and filter audit logs
   - Export audit logs for compliance
 
-**US-023: Security Notifications**
+**US-020: Access Control**
 - **As a** User
-- **I want to** receive security notifications
-- **So that** I can be aware of important security events
+- **I want to** control who can manage my wallets
+- **So that** I can maintain security
 - **Acceptance Criteria:**
-  - Email notifications for new signers
-  - Notifications for large transactions
-  - Failed login attempt alerts
-  - Suspicious activity alerts
-  - Configurable notification preferences
-
----
-
-## Monitoring & Analytics
-
-### Epic: Wallet Monitoring
-**As a** Wallet Owner or Administrator  
-**I want to** monitor wallet activity and performance  
-**So that** I can make informed decisions and detect issues
-
-#### User Stories:
-
-**US-024: Balance Monitoring**
-- **As a** Wallet Owner or Signer
-- **I want to** monitor wallet balances
-- **So that** I can track asset values and detect changes
-- **Acceptance Criteria:**
-  - Real-time XRP balance display
-  - Token balance tracking
-  - Balance history charts
-  - Balance change notifications
-  - Currency conversion to USD
-
-**US-025: Transaction Analytics**
-- **As a** Wallet Owner or Administrator
-- **I want to** analyze transaction patterns
-- **So that** I can understand wallet usage and optimize operations
-- **Acceptance Criteria:**
-  - Transaction volume statistics
-  - Transaction type distribution
-  - Signer activity analysis
-  - Transaction success rates
-  - Performance metrics
-
-**US-026: Health Monitoring**
-- **As a** Administrator
-- **I want to** monitor system health
-- **So that** I can ensure reliable operation
-- **Acceptance Criteria:**
-  - XRPL node connectivity status
-  - Database performance metrics
-  - API response times
-  - Error rate monitoring
-  - System resource usage
+  - Role-based access control
+  - Permission management
+  - Access review processes
+  - Revocation capabilities
 
 ---
 
 ## User Experience
 
-### Epic: User Interface
+### Epic: Seamless Integration
 **As a** User  
-**I want to** have an intuitive and responsive interface  
-**So that** I can efficiently manage my wallets and transactions
+**I want to** integrate with my existing wallet ecosystem  
+**So that** I can use familiar tools
 
 #### User Stories:
 
-**US-027: Responsive Design**
+**US-021: External Wallet Integration**
 - **As a** User
-- **I want to** access the application on any device
-- **So that** I can manage wallets from anywhere
+- **I want to** connect my existing wallet
+- **So that** I can sign transactions seamlessly
 - **Acceptance Criteria:**
-  - Mobile-responsive design
-  - Tablet-optimized interface
-  - Desktop application
+  - Ledger hardware wallet support
+  - Xaman mobile wallet integration
+  - XUMM wallet compatibility
+  - Generic wallet address support
+  - Connection status indicators
+
+**US-022: Mobile Responsive Design**
+- **As a** User
+- **I want to** access the app on mobile devices
+- **So that** I can manage wallets on the go
+- **Acceptance Criteria:**
+  - Mobile-optimized interface
   - Touch-friendly controls
-  - Consistent experience across devices
+  - Responsive design
+  - Offline capability
+  - Mobile notifications
 
-**US-028: Real-Time Updates**
+**US-023: Intuitive Workflow**
 - **As a** User
-- **I want to** see real-time updates
-- **So that** I can stay informed about wallet activity
+- **I want to** follow clear workflows
+- **So that** I can use the app effectively
 - **Acceptance Criteria:**
-  - Live balance updates
-  - Real-time transaction status
-  - Instant notification delivery
-  - WebSocket connections
-  - Offline indicator
+  - Step-by-step guidance
+  - Clear progress indicators
+  - Helpful error messages
+  - Contextual help
+  - Onboarding tutorials
 
-**US-029: Search and Filtering**
+---
+
+## Analytics & Reporting
+
+### Epic: Performance Insights
+**As a** User  
+**I want to** understand wallet performance  
+**So that** I can optimize operations
+
+#### User Stories:
+
+**US-024: Transaction Analytics**
 - **As a** User
-- **I want to** search and filter data
-- **So that** I can quickly find relevant information
+- **I want to** analyze transaction patterns
+- **So that** I can understand wallet usage
 - **Acceptance Criteria:**
-  - Search wallets by name
-  - Filter transactions by type/date/status
-  - Search signers by name/email
-  - Advanced filtering options
-  - Saved search preferences
+  - Transaction volume statistics
+  - Transaction type distribution
+  - Signer activity analysis
+  - Success rate tracking
+  - Performance metrics
 
-**US-030: Export and Reporting**
+**US-025: Signer Performance**
+- **As a** Wallet Owner
+- **I want to** track signer performance
+- **So that** I can optimize signer management
+- **Acceptance Criteria:**
+  - Signer response times
+  - Signature success rates
+  - Signer availability metrics
+  - Performance comparisons
+  - Improvement suggestions
+
+**US-026: Export Reports**
 - **As a** User
-- **I want to** export data and generate reports
-- **So that** I can maintain records and analyze performance
+- **I want to** export wallet reports
+- **So that** I can maintain records
 - **Acceptance Criteria:**
   - Export transaction history (CSV/PDF)
   - Generate wallet activity reports
@@ -409,18 +369,18 @@ This document contains user stories for the XRPL Multi-Signature Wallet Manager 
 
 ---
 
-## Integration & API
+## API & Integration
 
-### Epic: External Integrations
-**As a** Developer or Administrator  
-**I want to** integrate with external systems  
-**So that** I can extend functionality and automate processes
+### Epic: Developer Access
+**As a** Developer  
+**I want to** integrate with the coordination system  
+**So that** I can build custom solutions
 
 #### User Stories:
 
-**US-031: API Access**
+**US-027: RESTful API**
 - **As a** Developer
-- **I want to** access wallet functionality via API
+- **I want to** access coordination features via API
 - **So that** I can build custom integrations
 - **Acceptance Criteria:**
   - RESTful API endpoints
@@ -429,7 +389,7 @@ This document contains user stories for the XRPL Multi-Signature Wallet Manager 
   - Comprehensive documentation
   - SDK libraries
 
-**US-032: Webhook Notifications**
+**US-028: Webhook Notifications**
 - **As a** Developer
 - **I want to** receive webhook notifications
 - **So that** I can integrate with external systems
@@ -440,104 +400,16 @@ This document contains user stories for the XRPL Multi-Signature Wallet Manager 
   - Webhook security (signatures)
   - Webhook management interface
 
-**US-033: Third-Party Integrations**
+**US-029: Third-Party Integrations**
 - **As a** Administrator
 - **I want to** integrate with third-party services
 - **So that** I can enhance functionality
 - **Acceptance Criteria:**
   - KYC/AML provider integration
-  - Hardware security module (HSM) support
   - Notification service integration
   - Analytics platform integration
   - Backup service integration
-
----
-
-## Performance & Scalability
-
-### Epic: System Performance
-**As a** Administrator  
-**I want to** ensure the system performs well under load  
-**So that** I can provide reliable service to users
-
-#### User Stories:
-
-**US-034: High Availability**
-- **As a** Administrator
-- **I want to** ensure system availability
-- **So that** users can access the service when needed
-- **Acceptance Criteria:**
-  - 99.9% uptime SLA
-  - Automatic failover
-  - Load balancing
-  - Geographic redundancy
-  - Disaster recovery plan
-
-**US-035: Scalability**
-- **As a** Administrator
-- **I want to** scale the system
-- **So that** it can handle growing user demand
-- **Acceptance Criteria:**
-  - Horizontal scaling capability
-  - Database sharding support
-  - Caching strategies
-  - Performance monitoring
-  - Auto-scaling policies
-
-**US-036: Performance Optimization**
-- **As a** Administrator
-- **I want to** optimize system performance
-- **So that** users have fast response times
-- **Acceptance Criteria:**
-  - Sub-second API response times
-  - Efficient database queries
-  - CDN integration
-  - Image optimization
-  - Code optimization
-
----
-
-## Documentation & Support
-
-### Epic: User Support
-**As a** User  
-**I want to** have access to help and documentation  
-**So that** I can effectively use the system
-
-#### User Stories:
-
-**US-037: User Documentation**
-- **As a** User
-- **I want to** access comprehensive documentation
-- **So that** I can learn how to use the system effectively
-- **Acceptance Criteria:**
-  - User guides and tutorials
-  - Video demonstrations
-  - FAQ section
-  - Best practices guide
-  - Troubleshooting guide
-
-**US-038: Contextual Help**
-- **As a** User
-- **I want to** get help when I need it
-- **So that** I can resolve issues quickly
-- **Acceptance Criteria:**
-  - In-app help tooltips
-  - Context-sensitive help
-  - Interactive tutorials
-  - Searchable help system
-  - Contact support options
-
-**US-039: Support System**
-- **As a** User
-- **I want to** get support when needed
-- **So that** I can resolve issues and get answers
-- **Acceptance Criteria:**
-  - Support ticket system
-  - Live chat support
-  - Email support
-  - Phone support
-  - Knowledge base
+  - Compliance tool integration
 
 ---
 
@@ -545,34 +417,34 @@ This document contains user stories for the XRPL Multi-Signature Wallet Manager 
 
 ### Epic: Advanced Features
 **As a** User  
-**I want to** access advanced features  
-**So that** I can have more sophisticated wallet management capabilities
+**I want to** access advanced coordination features  
+**So that** I can have sophisticated multi-sig management
 
 #### User Stories:
 
-**US-040: Smart Contracts**
+**US-030: Smart Contract Integration**
 - **As a** Developer
-- **I want to** deploy and manage smart contracts
-- **So that** I can automate complex business logic
+- **I want to** coordinate smart contract interactions
+- **So that** I can manage complex DeFi operations
 - **Acceptance Criteria:**
-  - Smart contract deployment
-  - Contract interaction
-  - Contract monitoring
+  - Smart contract transaction support
+  - Contract parameter management
   - Gas optimization
+  - Contract monitoring
   - Contract templates
 
-**US-041: DeFi Integration**
+**US-031: Advanced Workflows**
 - **As a** User
-- **I want to** access DeFi protocols
-- **So that** I can earn yield and access financial services
+- **I want to** create complex approval workflows
+- **So that** I can handle sophisticated business processes
 - **Acceptance Criteria:**
-  - Lending protocol integration
-  - Yield farming capabilities
-  - Liquidity provision
-  - DeFi analytics
-  - Risk management tools
+  - Multi-step approval processes
+  - Conditional approvals
+  - Time-based approvals
+  - Escalation workflows
+  - Custom workflow builder
 
-**US-042: Advanced Analytics**
+**US-032: Advanced Analytics**
 - **As a** User
 - **I want to** access advanced analytics
 - **So that** I can make data-driven decisions
@@ -595,17 +467,17 @@ This document contains user stories for the XRPL Multi-Signature Wallet Manager 
 - Stories should be estimable and small enough to complete in one sprint
 
 ### Security Requirements
+- No private key storage or collection
 - All operations must be logged for audit purposes
-- Sensitive data must be encrypted at rest and in transit
-- Multi-factor authentication must be available for sensitive operations
+- Multi-factor authentication for sensitive operations
 - Access control must be implemented at all levels
 - Security testing must be performed for all features
 
 ### Performance Requirements
 - API response times must be under 1 second for 95% of requests
 - System must support at least 1000 concurrent users
-- Database queries must be optimized and indexed
-- Caching must be implemented where appropriate
+- Real-time updates must be delivered within 2 seconds
+- WebSocket connections must be stable and reliable
 - Monitoring and alerting must be in place
 
 ### Usability Requirements
@@ -620,18 +492,47 @@ This document contains user stories for the XRPL Multi-Signature Wallet Manager 
 ## Story Mapping
 
 ### User Journey
-1. **Onboarding**: Registration → Email verification → MFA setup → First wallet creation
-2. **Daily Operations**: Login → View wallets → Create transactions → Sign transactions → Monitor activity
+1. **Onboarding**: Registration → Import existing wallet → Verify ownership → Add signers
+2. **Daily Operations**: Login → View pending transactions → Sign with external wallet → Monitor progress
 3. **Management**: Add/remove signers → Update configurations → Generate reports → Monitor security
 4. **Advanced Usage**: API integration → Webhook setup → Analytics review → Performance optimization
 
 ### Priority Levels
-- **High Priority**: Core wallet functionality, security features, basic transaction management
-- **Medium Priority**: Advanced features, integrations, analytics, reporting
-- **Low Priority**: Nice-to-have features, advanced analytics, future enhancements
+- **High Priority**: Wallet import, signer management, transaction coordination, real-time updates
+- **Medium Priority**: Advanced analytics, API access, third-party integrations
+- **Low Priority**: Nice-to-have features, advanced workflows, future enhancements
 
 ### Dependencies
-- Authentication system must be in place before wallet creation
-- XRPL integration must be complete before transaction management
+- Authentication system must be in place before wallet import
+- XRPL integration must be complete before transaction coordination
 - Database schema must be finalized before implementation
-- Security framework must be established before sensitive operations 
+- Security framework must be established before sensitive operations
+- WebSocket infrastructure must be in place for real-time features
+
+---
+
+## Key Differentiators
+
+### 🎯 **Non-Custodial Approach**
+- No private key storage or management
+- Users maintain full control of their assets
+- Reduced security and compliance burden
+- Faster time to market
+
+### 🔄 **Coordination Focus**
+- Emphasis on workflow management
+- Real-time signature tracking
+- Seamless external wallet integration
+- Comprehensive audit trails
+
+### 🚀 **User Experience**
+- Intuitive multi-sig coordination
+- Mobile-first responsive design
+- Real-time notifications and updates
+- Familiar wallet integration
+
+### 🏢 **Enterprise Ready**
+- Role-based access control
+- Comprehensive audit logging
+- API access for integrations
+- Compliance and reporting features 
