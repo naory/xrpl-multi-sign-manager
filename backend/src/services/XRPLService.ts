@@ -72,9 +72,7 @@ export class XRPLService {
       network: (process.env['XRPL_NETWORK'] as 'mainnet' | 'testnet' | 'devnet') || 'testnet'
     };
     
-    this.client = new Client(this.config.primaryNode, {
-      connectionTimeout: this.config.connectionTimeout
-    });
+    this.client = new Client(this.config.primaryNode);
   }
 
   async connect(): Promise<void> {
@@ -217,8 +215,8 @@ export class XRPLService {
       const signed = masterWallet.sign(prepared);
       const result = await this.client.submitAndWait(signed.tx_blob);
 
-      if (result.result.meta?.TransactionResult !== 'tesSUCCESS') {
-        throw new Error(`Transaction failed: ${result.result.meta?.TransactionResult}`);
+      if ((result.result.meta as any)?.TransactionResult !== 'tesSUCCESS') {
+        throw new Error(`Transaction failed: ${(result.result.meta as any)?.TransactionResult}`);
       }
 
       LoggingService.info('Multi-signature setup successful', {
@@ -267,8 +265,8 @@ export class XRPLService {
       // Submit and wait for validation
       const result = await this.client.submitAndWait(signed.tx_blob);
 
-      if (result.result.meta?.TransactionResult !== 'tesSUCCESS') {
-        throw new Error(`Transaction failed: ${result.result.meta?.TransactionResult}`);
+      if ((result.result.meta as any)?.TransactionResult !== 'tesSUCCESS') {
+        throw new Error(`Transaction failed: ${(result.result.meta as any)?.TransactionResult}`);
       }
 
       LoggingService.info('Transaction submitted successfully', {

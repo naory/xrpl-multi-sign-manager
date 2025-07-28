@@ -101,7 +101,7 @@ export class WalletService {
       const wallet = await WalletModel.create({
         user_id: request.userId,
         name: request.name,
-        description: request.description || undefined,
+        description: request.description || '',
         address: xrplWallet.address,
         // public_key: xrplWallet.publicKey,
         // encrypted_private_key: encryptedPrivateKey,
@@ -124,7 +124,9 @@ export class WalletService {
           user_id: signer.userId,
           weight: signer.weight,
           status: 'active',
-          added_by: request.userId
+          added_by: request.userId,
+          role: 'signer',
+          permissions: 'sign'
         });
 
         signerEntries.push({
@@ -208,7 +210,7 @@ export class WalletService {
         network: wallet.network,
         status: wallet.status,
         quorum: wallet.quorum,
-        signers: wallet.wallet_signers?.map(signer => ({
+        signers: wallet.wallet_signers?.map((signer: any) => ({
           id: signer.id,
           userId: signer.user_id,
           userEmail: signer.user?.email || '',

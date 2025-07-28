@@ -85,7 +85,7 @@ export class NewUserOnboardingService {
         user_id: userId,
         public_address: connectionRequest.public_address,
         wallet_type: connectionRequest.wallet_type || 'other',
-        nickname: connectionRequest.nickname || undefined,
+        nickname: connectionRequest.nickname || '',
         is_primary: true, // First connected wallet is primary
         is_verified: true,
         verification_signature: connectionRequest.verification_signature,
@@ -131,7 +131,7 @@ export class NewUserOnboardingService {
       const creationRequest = await WalletCreationRequest.create({
         user_id: userId,
         wallet_name: creationData.wallet_name,
-        wallet_description: creationData.wallet_description,
+        wallet_description: creationData.wallet_description || '',
         network: creationData.network,
         signature_scheme: creationData.signature_scheme,
         quorum: creationData.quorum,
@@ -524,13 +524,14 @@ export class NewUserOnboardingService {
       const wallet = await Wallet.create({
         user_id: creationRequest.user_id,
         name: creationRequest.wallet_name,
-        description: creationRequest.wallet_description,
+        description: creationRequest.wallet_description || '',
         address: creationRequest.generated_address,
         network: creationRequest.network,
         signature_scheme: creationRequest.signature_scheme,
         quorum: creationRequest.quorum,
         is_imported: false,
         import_verified: true,
+        status: 'active',
       });
 
       // Add signers
@@ -539,8 +540,9 @@ export class NewUserOnboardingService {
           wallet_id: wallet.id,
           public_address: signerData.public_address,
           weight: signerData.weight,
-          nickname: signerData.nickname,
+          nickname: signerData.nickname || '',
           added_by: creationRequest.user_id,
+          is_active: true,
         });
       }
 

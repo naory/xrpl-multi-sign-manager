@@ -6,13 +6,16 @@ import { WalletImport } from '../models/WalletImport';
 // Transaction and TransactionSignature models not yet implemented
 // Using placeholder classes for now
 class Transaction {
-  static async create(data: any): Promise<Transaction> {
+  static async create(_data: any): Promise<Transaction> {
     throw new Error('Transaction model not implemented yet');
   }
-  static async findByPk(id: string, options?: any): Promise<Transaction | null> {
+  static async findByPk(_id: string, _options?: any): Promise<Transaction | null> {
     throw new Error('Transaction model not implemented yet');
   }
-  static async findAll(options?: any): Promise<Transaction[]> {
+  static async findAll(_options?: any): Promise<Transaction[]> {
+    throw new Error('Transaction model not implemented yet');
+  }
+  static async update(_data: any, _options?: any): Promise<Transaction> {
     throw new Error('Transaction model not implemented yet');
   }
   id!: string;
@@ -22,16 +25,18 @@ class Transaction {
   status!: string;
   created_by!: string;
   signatures?: TransactionSignature[];
+  required_weight!: number;
+  xrpl_transaction!: any;
 }
 
 class TransactionSignature {
-  static async create(data: any): Promise<TransactionSignature> {
+  static async create(_data: any): Promise<TransactionSignature> {
     throw new Error('TransactionSignature model not implemented yet');
   }
-  static async findOne(options?: any): Promise<TransactionSignature | null> {
+  static async findOne(_options?: any): Promise<TransactionSignature | null> {
     throw new Error('TransactionSignature model not implemented yet');
   }
-  static async sum(field: string, options?: any): Promise<number> {
+  static async sum(_field: string, _options?: any): Promise<number> {
     throw new Error('TransactionSignature model not implemented yet');
   }
   id!: string;
@@ -39,6 +44,7 @@ class TransactionSignature {
   signer_address!: string;
   signature!: string;
   weight!: number;
+  public_key!: string;
 }
 
 export interface SignerInfo {
