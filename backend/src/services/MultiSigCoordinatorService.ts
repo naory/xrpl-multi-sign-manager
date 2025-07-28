@@ -1,10 +1,10 @@
 import { XRPLService } from './XRPLService';
 import { LoggingService } from './LoggingService';
 import { ExternalSigner } from '../models/ExternalSigner';
-import { Wallet } from '../models/Wallet';
+import Wallet from '../models/Wallet';
 import { WalletImport } from '../models/WalletImport';
-import { Transaction } from '../models/Transaction';
-import { TransactionSignature } from '../models/TransactionSignature';
+// import { Transaction } from '../models/Transaction';
+// import { TransactionSignature } from '../models/TransactionSignature';
 
 export interface SignerInfo {
   public_address: string;
@@ -67,13 +67,14 @@ export class MultiSigCoordinatorService {
       const wallet = await Wallet.create({
         user_id: userId,
         name: importRequest.name,
-        description: importRequest.description,
+        description: importRequest.description || undefined,
         address: importRequest.address,
         network: importRequest.network,
         signature_scheme: 'weighted', // Default to weighted for now
         quorum: accountInfo.SignerList.Quorum,
         is_imported: true,
         import_verified: true, // Verified since we confirmed it exists
+        status: 'active'
       });
 
       // Create import record
@@ -145,6 +146,7 @@ export class MultiSigCoordinatorService {
         email: signerInfo.email,
         wallet_type: signerInfo.wallet_type,
         added_by: userId,
+        is_active: true
       });
 
       // Update XRPL signer list

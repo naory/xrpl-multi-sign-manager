@@ -18,7 +18,7 @@ app.use(helmet());
 
 // CORS configuration
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: process.env['FRONTEND_URL'] || 'http://localhost:3000',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -39,7 +39,7 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 // Logging middleware
-if (process.env.NODE_ENV === 'development') {
+if (process.env['NODE_ENV'] === 'development') {
   app.use(morgan('dev'));
 } else {
   app.use(morgan('combined'));
@@ -57,6 +57,11 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Health check routes
 app.use('/health', healthRoutes);
+
+// Test route
+app.get('/test', (_req, res) => {
+  res.json({ message: 'App is working!' });
+});
 
 // API routes
 app.use('/api/auth', authRoutes);

@@ -2,9 +2,7 @@ import {
   Model,
   DataTypes,
   Sequelize,
-  Optional,
-  BelongsTo,
-  HasMany
+  Optional
 } from 'sequelize';
 import sequelize from '../config/database';
 

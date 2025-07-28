@@ -2,9 +2,7 @@ import {
   Model,
   DataTypes,
   Sequelize,
-  Optional,
-  HasMany,
-  BelongsToMany
+  Optional
 } from 'sequelize';
 import sequelize from '../config/database';
 import bcrypt from 'bcrypt';

@@ -10,7 +10,7 @@ export const errorHandler = (
   error: AppError,
   req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ): void => {
   let statusCode = error.statusCode || 500;
   let message = error.message || 'Internal Server Error';
@@ -61,7 +61,7 @@ export const errorHandler = (
   });
 
   // Don't leak error details in production
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env['NODE_ENV'] === 'production') {
     message = 'Internal Server Error';
   }
 

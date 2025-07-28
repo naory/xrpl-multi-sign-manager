@@ -4,6 +4,11 @@ import { AuthController } from '../controllers/AuthController';
 const router = Router();
 const authController = new AuthController();
 
+// Test route
+router.get('/test', (_req, res) => {
+  res.json({ message: 'Auth routes are working!' });
+});
+
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
   await authController.register(req, res);

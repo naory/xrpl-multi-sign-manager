@@ -344,8 +344,8 @@ export class WalletController {
     } catch (error) {
       LoggingService.error('Failed to update signer weight', {
         userId: req.user?.userId,
-        walletId: req.params.walletId,
-        signerUserId: req.params.signerUserId,
+        walletId: req.params['walletId'],
+        signerUserId: req.params['signerUserId'],
         error: error instanceof Error ? error.message : 'Unknown error'
       });
 

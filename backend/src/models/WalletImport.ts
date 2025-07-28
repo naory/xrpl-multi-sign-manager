@@ -37,7 +37,7 @@ export class WalletImport extends Model<WalletImportAttributes, WalletImportCrea
   }
 
   get hasMetadata(): boolean {
-    return this.import_metadata && Object.keys(this.import_metadata).length > 0;
+    return this.import_metadata ? Object.keys(this.import_metadata).length > 0 : false;
   }
 }
 

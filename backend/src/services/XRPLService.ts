@@ -1,4 +1,4 @@
-import { Client, Wallet, xrpl, ClientOptions, AccountTxResponse, AccountInfoResponse } from 'xrpl';
+import { Client, Wallet, AccountTxResponse, AccountInfoResponse } from 'xrpl';
 import { LoggingService } from './LoggingService';
 
 interface XRPLConfig {
@@ -62,14 +62,14 @@ export class XRPLService {
 
   constructor() {
     this.config = {
-      primaryNode: process.env.XRPL_PRIMARY_NODE || 'wss://s.altnet.rippletest.net:51233',
-      backupNodes: process.env.XRPL_BACKUP_NODES?.split(',') || [
+      primaryNode: process.env['XRPL_PRIMARY_NODE'] || 'wss://s.altnet.rippletest.net:51233',
+      backupNodes: process.env['XRPL_BACKUP_NODES']?.split(',') || [
         'wss://testnet.xrpl-labs.com',
         'wss://s.altnet.rippletest.net:51233'
       ],
       connectionTimeout: 30000,
       retryAttempts: 3,
-      network: (process.env.XRPL_NETWORK as 'mainnet' | 'testnet' | 'devnet') || 'testnet'
+      network: (process.env['XRPL_NETWORK'] as 'mainnet' | 'testnet' | 'devnet') || 'testnet'
     };
     
     this.client = new Client(this.config.primaryNode, {
