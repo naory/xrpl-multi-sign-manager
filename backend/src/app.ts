@@ -66,7 +66,7 @@ app.get('/test', (_req, res) => {
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/oauth', oauthRoutes);
-app.use('/api/wallet', walletRoutes);
+// app.use('/api/wallet', walletRoutes);
 
 // 404 handler
 app.use(notFoundHandler);

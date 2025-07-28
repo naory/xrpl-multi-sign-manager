@@ -1,14 +1,14 @@
 import { Router } from 'express';
 import { WalletController } from '../controllers/WalletController';
 import { authenticateJWT, requireUser } from '../middleware/auth/jwtAuth';
-import { validate, userValidation } from '../middleware/validation/requestValidation';
+// import { validate, userValidation } from '../middleware/validation/requestValidation';
 
 const router = Router();
 const walletController = new WalletController();
 
 // Apply authentication middleware to all wallet routes
-router.use(authenticateJWT);
-router.use(requireUser);
+// router.use(authenticateJWT);
+// router.use(requireUser);
 
 // POST /api/wallet - Create a new wallet
 router.post('/', async (req, res) => {

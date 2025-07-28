@@ -2,6 +2,16 @@
 
 A user-friendly application for **coordinating multi-signature workflows** on the XRP Ledger (XRPL). This application focuses on **workflow coordination** rather than private key storage, allowing users to manage multi-sig wallets using their existing trusted wallets (Ledger, Xaman, etc.).
 
+## 🚀 **Quick Access**
+
+### Development Environment
+- **Frontend Application**: http://localhost:3000
+- **Backend API**: http://localhost:3001
+- **Health Check**: http://localhost:3001/health
+- **API Documentation**: http://localhost:3001/docs
+- **Database Management (pgAdmin)**: http://localhost:5050
+- **Redis Management**: http://localhost:8081
+
 ## 🎯 **Key Differentiators**
 
 ### 🔒 **Non-Custodial Security**
@@ -347,8 +357,11 @@ The XRPL Multi-Signature Coordinator is a comprehensive solution designed to **c
 
 5. **Access the application**
    - Frontend: http://localhost:3000
-   - Backend API: http://localhost:8000
-   - API Documentation: http://localhost:8000/docs
+   - Backend API: http://localhost:3001
+   - Health Check: http://localhost:3001/health
+   - API Documentation: http://localhost:3001/docs
+   - Database Management (pgAdmin): http://localhost:5050
+   - Redis Management: http://localhost:8081
 
 ### Development Commands
 

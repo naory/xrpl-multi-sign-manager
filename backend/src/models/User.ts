@@ -5,7 +5,7 @@ import {
   Optional
 } from 'sequelize';
 import sequelize from '../config/database';
-import bcrypt from 'bcrypt';
+import * as bcrypt from 'bcrypt';
 
 interface UserAttributes {
   id: string;

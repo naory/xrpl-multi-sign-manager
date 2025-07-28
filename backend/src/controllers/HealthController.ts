@@ -45,7 +45,7 @@ export class HealthController {
     }
   }
 
-  static async readinessCheck(req: Request, res: Response): Promise<void> {
+  static async readinessCheck(_req: Request, res: Response): Promise<void> {
     try {
       // Check if application is ready to serve requests
       await sequelize.authenticate();
@@ -65,7 +65,7 @@ export class HealthController {
     }
   }
 
-  static async livenessCheck(req: Request, res: Response): Promise<void> {
+  static async livenessCheck(_req: Request, res: Response): Promise<void> {
     // Simple liveness check - just return OK if the process is running
     res.status(200).json({
       success: true,
