@@ -16,9 +16,9 @@ export const validate = (validations: ValidationChain[]) => {
       success: false,
       message: 'Validation failed',
       errors: errors.array().map(error => ({
-        field: error.path,
+        field: (error as any).path,
         message: error.msg,
-        value: error.value
+        value: (error as any).value
       }))
     });
   };
@@ -46,7 +46,7 @@ export const userValidation = {
       .withMessage('Last name is required and must be less than 100 characters'),
     body('phone')
       .optional()
-      .isMobilePhone()
+      .isMobilePhone('any')
       .withMessage('Valid phone number is required')
   ],
   
@@ -83,7 +83,7 @@ export const userValidation = {
 };
 
 // Sanitize input data
-export const sanitizeInput = (req: Request, res: Response, next: NextFunction): void => {
+export const sanitizeInput = (req: Request, _res: Response, next: NextFunction): void => {
   // Sanitize body
   if (req.body) {
     Object.keys(req.body).forEach(key => {

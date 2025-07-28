@@ -423,11 +423,11 @@ export class XRPLService {
 
   // Utility methods
   private xrpToDrops(xrp: string): string {
-    return xrpl.xrpToDrops(xrp);
+    return (parseInt(xrp) * 1000000).toString();
   }
 
   private dropsToXrp(drops: string): string {
-    return xrpl.dropsToXrp(drops);
+    return (parseInt(drops) / 1000000).toString();
   }
 
   private async ensureConnection(): Promise<void> {

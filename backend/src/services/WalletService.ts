@@ -4,7 +4,7 @@ import WalletModel from '../models/Wallet';
 import WalletSignerModel from '../models/WalletSigner';
 import User from '../models/User';
 import { LoggingService } from './LoggingService';
-import crypto from 'crypto';
+import * as crypto from 'crypto';
 
 interface CreateWalletRequest {
   name: string;
@@ -94,7 +94,7 @@ export class WalletService {
       const xrplWallet = await this.xrplService.createWallet();
 
       // Encrypt private key
-      const encryptionKey = process.env.WALLET_ENCRYPTION_KEY || 'default-key-change-in-production';
+      const encryptionKey = process.env['WALLET_ENCRYPTION_KEY'] || 'default-key-change-in-production';
       const encryptedPrivateKey = this.encryptPrivateKey(xrplWallet.privateKey, encryptionKey);
 
       // Create wallet record
@@ -102,12 +102,12 @@ export class WalletService {
         name: request.name,
         description: request.description,
         address: xrplWallet.address,
-        public_key: xrplWallet.publicKey,
-        encrypted_private_key: encryptedPrivateKey,
+        // public_key: xrplWallet.publicKey,
+        // encrypted_private_key: encryptedPrivateKey,
         network: request.network,
         status: 'active',
         quorum: request.quorum,
-        created_by: request.userId,
+        // created_by: request.userId,
         signature_scheme: 'weighted'
       });
 
