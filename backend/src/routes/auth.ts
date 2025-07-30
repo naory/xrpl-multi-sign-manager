@@ -34,4 +34,14 @@ router.post('/logout-all', async (req, res) => {
   await authController.logoutAll(req, res);
 });
 
+// GET /api/auth/verify-email/:token
+router.get('/verify-email/:token', async (req, res) => {
+  await authController.verifyEmail(req, res);
+});
+
+// POST /api/auth/resend-verification
+router.post('/resend-verification', async (req, res) => {
+  await authController.resendVerificationEmail(req, res);
+});
+
 export default router; 

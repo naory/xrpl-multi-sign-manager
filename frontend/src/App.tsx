@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Layout, Header, Sidebar, Main } from './components/layout/Layout';
 import { Navigation, MobileMenu } from './components/navigation/Navigation';
 import LoginPage from './pages/auth/LoginPage';
+import RegisterPage from './pages/auth/RegisterPage';
+import EmailVerificationPage from './pages/auth/EmailVerificationPage';
 import DashboardPage from './pages/dashboard/DashboardPage';
 import './index.css';
 
@@ -116,6 +118,30 @@ function App() {
       }
     } catch (err) {
       setError('An error occurred during login');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRegister = async (data: { firstName: string; lastName: string; email: string; password: string; confirmPassword: string }) => {
+    setIsLoading(true);
+    setError(undefined);
+    
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Mock registration logic
+      if (data.email && data.password && data.firstName && data.lastName) {
+        // Show success message and redirect to email verification
+        alert(`Registration successful! Please check your email (${data.email}) for a verification link.`);
+        // For demo purposes, you can redirect to login or stay on register page
+        // In real implementation, you'd redirect to a "check your email" page
+      } else {
+        setError('Please fill in all required fields');
+      }
+    } catch (err) {
+      setError('An error occurred during registration');
     } finally {
       setIsLoading(false);
     }
@@ -311,7 +337,26 @@ function App() {
                   onAppleLogin={handleAppleLogin}
                   isLoading={isLoading}
                   error={error}
+                  clearError={() => setError(undefined)}
                 />
+              }
+            />
+            <Route
+              path="/register"
+              element={
+                <RegisterPage
+                  onRegister={handleRegister}
+                  onGoogleLogin={handleGoogleLogin}
+                  onAppleLogin={handleAppleLogin}
+                  isLoading={isLoading}
+                  error={error}
+                />
+              }
+            />
+            <Route
+              path="/verify-email"
+              element={
+                <EmailVerificationPage />
               }
             />
             <Route path="*" element={<Navigate to="/login" replace />} />

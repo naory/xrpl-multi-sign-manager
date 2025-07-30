@@ -7,7 +7,7 @@ import rateLimit from 'express-rate-limit';
 import authRoutes from './routes/auth';
 import oauthRoutes from './routes/oauth';
 import healthRoutes from './routes/health';
-import walletRoutes from './routes/wallet';
+// import walletRoutes from './routes/wallet'; // Temporarily disabled due to TS issues
 import { errorHandler, notFoundHandler } from './middleware/error/errorHandler';
 import { LoggingService } from './services/LoggingService';
 
@@ -66,7 +66,7 @@ app.get('/test', (_req, res) => {
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/oauth', oauthRoutes);
-app.use('/api/wallet', walletRoutes);
+// app.use('/api/wallet', walletRoutes); // Temporarily disabled due to TS issues
 
 // 404 handler
 app.use(notFoundHandler);

@@ -75,6 +75,7 @@ export class OAuthService {
           oauth_email: email,
           role: 'user',
           status: 'active',
+          email_verified: true, // OAuth users are pre-verified
           password_hash: await this.generateOAuthPassword(),
           kyc_status: 'pending',
           aml_status: 'pending',

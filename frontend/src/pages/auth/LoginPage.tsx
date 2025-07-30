@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Input, Card, CardHeader, CardContent, CardFooter, Loading } from '../../components/ui';
+import { Button, Input, Card, CardHeader, CardContent, CardFooter } from '../../components/ui';
 
 interface LoginFormData {
   email: string;
@@ -13,6 +13,7 @@ interface LoginPageProps {
   onAppleLogin?: () => void;
   isLoading?: boolean;
   error?: string;
+  clearError?: () => void;
 }
 
 const LoginPage: React.FC<LoginPageProps> = ({
@@ -21,6 +22,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
   onAppleLogin,
   isLoading = false,
   error,
+  clearError,
 }) => {
   const [formData, setFormData] = useState<LoginFormData>({
     email: '',
@@ -245,6 +247,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
               <Link
                 to="/register"
                 className="font-medium text-primary-600 hover:text-primary-500"
+                onClick={clearError}
               >
                 Sign up
               </Link>

@@ -2,6 +2,8 @@ import * as jwt from 'jsonwebtoken';
 import * as crypto from 'crypto';
 import User from '../models/User';
 import Session from '../models/Session';
+import { EmailService } from './EmailService';
+import { LoggingService } from './LoggingService';
 
 interface RegisterUserData {
   email: string;
@@ -36,11 +38,13 @@ export class AuthService {
   private readonly jwtSecret: string;
   private readonly jwtExpiry: string;
   private readonly refreshTokenExpiry: string;
+  private readonly emailService: EmailService;
 
   constructor() {
     this.jwtSecret = process.env['JWT_SECRET'] || 'default-secret-change-in-production';
     this.jwtExpiry = process.env['JWT_EXPIRY'] || '15m';
     this.refreshTokenExpiry = process.env['REFRESH_TOKEN_EXPIRY'] || '7d';
+    this.emailService = new EmailService();
   }
 
   async registerUser(registerData: RegisterUserData): Promise<User> {
@@ -55,6 +59,10 @@ export class AuthService {
     // Validate password strength
     this.validatePassword(password);
 
+    // Generate verification token
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
     // Create user
     const userData: any = {
       email: email.toLowerCase(),
@@ -67,7 +75,10 @@ export class AuthService {
       aml_status: 'pending',
       ofac_status: 'pending',
       risk_score: 0,
-      mfa_enabled: false
+      mfa_enabled: false,
+      email_verified: false,
+      email_verification_token: verificationToken,
+      email_verification_expires_at: expiresAt
     };
     
     // Only add phone if provided
@@ -80,6 +91,19 @@ export class AuthService {
     // Hash and set password
     await user.hashPassword(password);
     await user.save();
+
+    // Send verification email
+    try {
+      await this.emailService.sendVerificationEmail(email, verificationToken, firstName);
+      LoggingService.info('Verification email sent', { userId: user.id, email });
+    } catch (error) {
+      LoggingService.error('Failed to send verification email', { 
+        userId: user.id, 
+        email, 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      });
+      // Don't fail registration if email fails, but log it
+    }
 
     return user;
   }
@@ -285,6 +309,83 @@ export class AuthService {
       return decoded;
     } catch (error) {
       throw new Error('Invalid token');
+    }
+  }
+
+  async verifyEmail(token: string): Promise<boolean> {
+    try {
+      // Find user by verification token
+      const user = await User.findOne({
+        where: {
+          email_verification_token: token,
+          email_verification_expires_at: {
+            [require('sequelize').Op.gt]: new Date()
+          }
+        }
+      });
+
+      if (!user) {
+        throw new Error('Invalid or expired verification token');
+      }
+
+      // Mark email as verified
+      user.email_verified = true;
+      user.email_verified_at = new Date();
+      await user.save();
+      
+      // Clear verification fields by setting to empty string and null date
+      await User.update(
+        {
+          email_verification_token: '',
+          email_verification_expires_at: new Date(0)
+        },
+        {
+          where: { id: user.id }
+        }
+      );
+
+      LoggingService.info('Email verified successfully', { userId: user.id, email: user.email });
+      return true;
+    } catch (error) {
+      LoggingService.error('Email verification failed', { 
+        token, 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      });
+      throw error;
+    }
+  }
+
+  async resendVerificationEmail(email: string): Promise<boolean> {
+    try {
+      const user = await User.findOne({ where: { email: email.toLowerCase() } });
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      if (user.email_verified) {
+        throw new Error('Email is already verified');
+      }
+
+      // Generate new verification token
+      const verificationToken = crypto.randomBytes(32).toString('hex');
+      const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+      // Update user with new token
+      user.email_verification_token = verificationToken;
+      user.email_verification_expires_at = expiresAt;
+      await user.save();
+
+      // Send verification email
+      await this.emailService.sendVerificationEmail(email, verificationToken, user.first_name);
+      
+      LoggingService.info('Verification email resent', { userId: user.id, email });
+      return true;
+    } catch (error) {
+      LoggingService.error('Failed to resend verification email', { 
+        email, 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      });
+      throw error;
     }
   }
 } 

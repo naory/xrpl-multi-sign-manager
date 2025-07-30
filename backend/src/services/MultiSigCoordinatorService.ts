@@ -108,7 +108,7 @@ export class MultiSigCoordinatorService {
       const wallet = await Wallet.create({
         user_id: userId,
         name: importRequest.name,
-        description: importRequest.description || undefined,
+        description: importRequest.description || '',
         address: importRequest.address,
         network: importRequest.network,
         signature_scheme: 'weighted', // Default to weighted for now
@@ -123,7 +123,7 @@ export class MultiSigCoordinatorService {
         wallet_id: wallet.id,
         imported_by: userId,
         import_method: importRequest.import_method,
-        import_metadata: importRequest.import_metadata || undefined,
+        import_metadata: importRequest.import_metadata || {},
       });
 
       // Import existing signers from XRPL
@@ -183,7 +183,7 @@ export class MultiSigCoordinatorService {
         wallet_id: walletId,
         public_address: signerInfo.public_address,
         weight: signerInfo.weight,
-        nickname: signerInfo.nickname || undefined,
+        nickname: signerInfo.nickname || '',
         email: signerInfo.email || undefined,
         wallet_type: signerInfo.wallet_type || undefined,
         added_by: userId,
