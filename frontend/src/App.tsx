@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { Layout, Header, Sidebar, Main } from './components/layout/Layout';
 import { Navigation, MobileMenu } from './components/navigation/Navigation';
 import LoginPage from './pages/auth/LoginPage';
@@ -96,11 +96,12 @@ const mockUser = {
   avatar: undefined,
 };
 
-function App() {
+function AppContent() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | undefined>();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handleLogin = async (data: { email: string; password: string }) => {
     setIsLoading(true);
@@ -133,10 +134,10 @@ function App() {
       
       // Mock registration logic
       if (data.email && data.password && data.firstName && data.lastName) {
-        // Show success message and redirect to email verification
+        // Show success message and redirect to login
         alert(`Registration successful! Please check your email (${data.email}) for a verification link.`);
-        // For demo purposes, you can redirect to login or stay on register page
-        // In real implementation, you'd redirect to a "check your email" page
+        // Redirect to login page after user clicks OK
+        navigate('/login');
       } else {
         setError('Please fill in all required fields');
       }
@@ -214,8 +215,7 @@ function App() {
   };
 
   return (
-    <Router>
-      <div className="App">
+    <div className="App">
         {isAuthenticated ? (
           <Layout>
             <Header>
@@ -363,6 +363,13 @@ function App() {
           </Routes>
         )}
       </div>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <AppContent />
     </Router>
   );
 }
