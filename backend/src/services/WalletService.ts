@@ -23,8 +23,8 @@ interface WalletDetails {
   name: string;
   description?: string;
   address: string;
-  publicKey: string;
-  encryptedPrivateKey: string;
+  publicKey?: string;
+  encryptedPrivateKey?: string;
   network: string;
   status: string;
   quorum: number;
@@ -130,17 +130,18 @@ export class WalletService {
         });
 
         signerEntries.push({
-          address: signerUser.xrpl_address || '', // Will be set when user creates XRPL address
+          address: '', // TODO: Get XRPL address from user wallet connection
           weight: signer.weight
         });
       }
 
       // Setup multi-signature on XRPL (if master wallet has XRPL address)
-      const masterUser = await User.findByPk(request.userId);
-      if (masterUser?.xrpl_address) {
-        const masterWallet = Wallet.fromSeed(masterUser.xrpl_seed || '');
-        await this.xrplService.setupMultiSignature(masterWallet, signerEntries, request.quorum);
-      }
+      // TODO: Get XRPL address and seed from user wallet connection
+      // const masterUser = await User.findByPk(request.userId);
+      // if (masterUser?.xrpl_address) {
+      //   const masterWallet = Wallet.fromSeed(masterUser.xrpl_seed || '');
+      //   await this.xrplService.setupMultiSignature(masterWallet, signerEntries, request.quorum);
+      // }
 
       LoggingService.info('Wallet created successfully', {
         walletId: wallet.id,

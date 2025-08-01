@@ -481,4 +481,25 @@ export class XRPLService {
       };
     }
   }
+
+  // Missing methods that are referenced in other services
+  async buildTransaction(transactionType: string, params: any): Promise<any> {
+    // TODO: Implement transaction building
+    throw new Error('buildTransaction method not implemented yet');
+  }
+
+  async submitMultiSignedTransaction(transaction: any, signatures: any[]): Promise<TransactionResult> {
+    // TODO: Implement multi-signed transaction submission
+    throw new Error('submitMultiSignedTransaction method not implemented yet');
+  }
+
+  async createBlackholeTransaction(address: string): Promise<TransactionResult> {
+    // TODO: Implement blackhole transaction creation
+    throw new Error('createBlackholeTransaction method not implemented yet');
+  }
+
+  async verifySignature(message: string, signature: string, publicKey: string): Promise<boolean> {
+    // TODO: Implement signature verification
+    throw new Error('verifySignature method not implemented yet');
+  }
 } 

@@ -6,16 +6,16 @@ import { WalletImport } from '../models/WalletImport';
 // Transaction and TransactionSignature models not yet implemented
 // Using placeholder classes for now
 class Transaction {
-  static async create(): Promise<Transaction> {
+  static async create(data: any): Promise<Transaction> {
     throw new Error('Transaction model not implemented yet');
   }
-  static async findByPk(): Promise<Transaction | null> {
+  static async findByPk(id: string, options?: any): Promise<Transaction | null> {
     throw new Error('Transaction model not implemented yet');
   }
-  static async findAll(): Promise<Transaction[]> {
+  static async findAll(options?: any): Promise<Transaction[]> {
     throw new Error('Transaction model not implemented yet');
   }
-  static async update(): Promise<Transaction> {
+  static async update(data: any, options?: any): Promise<Transaction> {
     throw new Error('Transaction model not implemented yet');
   }
   id!: string;
@@ -27,16 +27,20 @@ class Transaction {
   signatures?: TransactionSignature[];
   required_weight!: number;
   xrpl_transaction!: any;
+
+  async update(data: any): Promise<Transaction> {
+    throw new Error('Transaction update method not implemented yet');
+  }
 }
 
 class TransactionSignature {
-  static async create(): Promise<TransactionSignature> {
+  static async create(data: any): Promise<TransactionSignature> {
     throw new Error('TransactionSignature model not implemented yet');
   }
-  static async findOne(): Promise<TransactionSignature | null> {
+  static async findOne(options?: any): Promise<TransactionSignature | null> {
     throw new Error('TransactionSignature model not implemented yet');
   }
-  static async sum(): Promise<number> {
+  static async sum(field: string, options?: any): Promise<number> {
     throw new Error('TransactionSignature model not implemented yet');
   }
   id!: string;

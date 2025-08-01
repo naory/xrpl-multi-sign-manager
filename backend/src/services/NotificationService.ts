@@ -1,4 +1,5 @@
 import { LoggingService } from './LoggingService';
+import Transaction from '../models/Transaction';
 import User from '../models/User';
 import Wallet from '../models/Wallet';
 // import { Transaction } from '../models/Transaction';
