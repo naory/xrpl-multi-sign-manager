@@ -45,14 +45,7 @@ interface BalanceResult {
   lastUpdated: Date;
 }
 
-interface CurrencyDetails {
-  currency: string;
-  currencyHex: string;
-  issuer?: string;
-  name?: string;
-  symbol?: string;
-  decimals?: number;
-}
+
 
 export class XRPLService {
   private client: Client;
@@ -111,8 +104,7 @@ export class XRPLService {
         LoggingService.info('Trying backup XRPL node', { node: backupNode });
         
         this.client = new Client(backupNode, {
-          connectionTimeout: this.config.connectionTimeout,
-          maxRetries: this.config.retryAttempts
+          connectionTimeout: this.config.connectionTimeout
         });
         
         await this.client.connect();
@@ -211,7 +203,7 @@ export class XRPLService {
         SignerList: signerList
       };
 
-      const prepared = await this.client.autofill(transaction);
+      const prepared = await this.client.autofill(transaction as any);
       const signed = masterWallet.sign(prepared);
       const result = await this.client.submitAndWait(signed.tx_blob);
 
@@ -254,7 +246,7 @@ export class XRPLService {
       }
 
       // Prepare the transaction
-      const prepared = await this.client.autofill(transaction);
+      const prepared = await this.client.autofill(transaction as any);
 
       // Sign with all signers
       let signed = prepared;
@@ -311,8 +303,8 @@ export class XRPLService {
         issuer?: string;
       }> = [];
 
-      if (accountInfo.result.account_data.Lines) {
-        for (const line of accountInfo.result.account_data.Lines) {
+      if ((accountInfo.result.account_data as any).Lines) {
+        for (const line of (accountInfo.result.account_data as any).Lines) {
           const currency = this.hexToCurrencyCode(line.currency);
           tokenBalances.push({
             currency,
@@ -423,9 +415,7 @@ export class XRPLService {
     return (parseInt(xrp) * 1000000).toString();
   }
 
-  private dropsToXrp(drops: string): string {
-    return (parseInt(drops) / 1000000).toString();
-  }
+
 
   private async ensureConnection(): Promise<void> {
     if (!this.isConnected) {

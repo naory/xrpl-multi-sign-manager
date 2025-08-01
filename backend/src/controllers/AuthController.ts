@@ -50,7 +50,7 @@ export class AuthController {
             success: false,
             message: error.message
           });
-        } else if (error.message.includes('Password must')) {
+        } else if (error.message.includes('Password must') || error.message.includes('Invalid email format')) {
           res.status(400).json({
             success: false,
             message: error.message
@@ -104,6 +104,11 @@ export class AuthController {
           res.status(401).json({
             success: false,
             message: 'Invalid email or password'
+          });
+        } else if (error.message.includes('Invalid email format')) {
+          res.status(400).json({
+            success: false,
+            message: error.message
           });
         } else if (error.message.includes('MFA code required')) {
           res.status(401).json({
