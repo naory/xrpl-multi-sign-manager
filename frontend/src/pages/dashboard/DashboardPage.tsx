@@ -89,7 +89,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
         <div>
           <h1 className="text-3xl font-bold text-neutral-900">Dashboard</h1>
           <p className="text-neutral-600 mt-1">
-            Welcome back! Here's an overview of your multi-signature wallets.
+            Welcome back! Here&apos;s an overview of your multi-signature wallets.
           </p>
         </div>
         <Button

@@ -209,7 +209,7 @@ const LoginPage: React.FC = () => {
           {/* Footer Links */}
           <Box sx={{ mt: 4, textAlign: 'center' }}>
             <Typography variant="body2" color="text.secondary">
-              Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
               <Link component={RouterLink} to="/register" sx={{ fontWeight: 600 }}>
                 Sign up
               </Link>
