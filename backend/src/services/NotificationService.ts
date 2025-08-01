@@ -704,7 +704,7 @@ export class NotificationService {
   /**
    * Get signer display name
    */
-  private getSignerDisplayName(signerAddress: string, signers: NotificationRecipient[]): string {
+  private getSignerDisplayName(signerAddress: string): string {
     // This would look up the signer's nickname or email
     // For now, return a shortened address
     return `${signerAddress.slice(0, 8)}...${signerAddress.slice(-8)}`;

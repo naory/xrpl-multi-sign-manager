@@ -95,7 +95,7 @@ export class WalletService {
 
       // Encrypt private key
       const encryptionKey = process.env['WALLET_ENCRYPTION_KEY'] || 'default-key-change-in-production';
-      const encryptedPrivateKey = this.encryptPrivateKey(xrplWallet.privateKey, encryptionKey);
+      this.encryptPrivateKey(xrplWallet.privateKey, encryptionKey);
 
       // Create wallet record
       const wallet = await WalletModel.create({
@@ -119,7 +119,7 @@ export class WalletService {
         const signerUser = signerUsers.find(u => u.id === signer.userId);
         if (!signerUser) continue;
 
-        const walletSigner = await WalletSignerModel.create({
+        await WalletSignerModel.create({
           wallet_id: wallet.id,
           user_id: signer.userId,
           weight: signer.weight,
@@ -446,9 +446,8 @@ export class WalletService {
   private decryptPrivateKey(encryptedPrivateKey: string, encryptionKey: string): string {
     const algorithm = 'aes-256-gcm';
     const key = crypto.scryptSync(encryptionKey, 'salt', 32);
-    const [ivHex, authTagHex, encrypted] = encryptedPrivateKey.split(':');
+    const [, authTagHex, encrypted] = encryptedPrivateKey.split(':');
     
-    const iv = Buffer.from(ivHex, 'hex');
     const authTag = Buffer.from(authTagHex, 'hex');
     const decipher = crypto.createDecipher(algorithm, key);
     

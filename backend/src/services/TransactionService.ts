@@ -5,28 +5,28 @@ import { Wallet } from 'xrpl';
 
 // Placeholder classes for missing models
 class TransactionModel {
-  static async findByPk(id: string, options?: any): Promise<any> {
+  static async findByPk(): Promise<any> {
     throw new Error('Transaction model not implemented yet');
   }
-  static async findAll(options?: any): Promise<any[]> {
+  static async findAll(): Promise<any[]> {
     throw new Error('Transaction model not implemented yet');
   }
-  static async create(data: any): Promise<any> {
+  static async create(): Promise<any> {
     throw new Error('Transaction model not implemented yet');
   }
 }
 
 class TransactionSignatureModel {
-  static async create(data: any): Promise<any> {
+  static async create(): Promise<any> {
     throw new Error('TransactionSignature model not implemented yet');
   }
-  static async findAll(options?: any): Promise<any[]> {
+  static async findAll(): Promise<any[]> {
     throw new Error('TransactionSignature model not implemented yet');
   }
-  static async findOne(options?: any): Promise<any> {
+  static async findOne(): Promise<any> {
     throw new Error('TransactionSignature model not implemented yet');
   }
-  static async update(data: any, options?: any): Promise<any> {
+  static async update(): Promise<any> {
     throw new Error('TransactionSignature model not implemented yet');
   }
 }
