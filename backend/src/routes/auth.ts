@@ -4,6 +4,11 @@ import { AuthController } from '../controllers/AuthController';
 const router = Router();
 const authController = new AuthController();
 
+// Test route
+router.get('/test', (_req, res) => {
+  res.json({ message: 'Auth routes are working!' });
+});
+
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
   await authController.register(req, res);
@@ -27,6 +32,16 @@ router.post('/logout', async (req, res) => {
 // POST /api/auth/logout-all
 router.post('/logout-all', async (req, res) => {
   await authController.logoutAll(req, res);
+});
+
+// GET /api/auth/verify-email/:token
+router.get('/verify-email/:token', async (req, res) => {
+  await authController.verifyEmail(req, res);
+});
+
+// POST /api/auth/resend-verification
+router.post('/resend-verification', async (req, res) => {
+  await authController.resendVerificationEmail(req, res);
 });
 
 export default router; 

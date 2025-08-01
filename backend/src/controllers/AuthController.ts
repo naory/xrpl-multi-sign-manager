@@ -50,7 +50,7 @@ export class AuthController {
             success: false,
             message: error.message
           });
-        } else if (error.message.includes('Password must')) {
+        } else if (error.message.includes('Password must') || error.message.includes('Invalid email format')) {
           res.status(400).json({
             success: false,
             message: error.message
@@ -104,6 +104,11 @@ export class AuthController {
           res.status(401).json({
             success: false,
             message: 'Invalid email or password'
+          });
+        } else if (error.message.includes('Invalid email format')) {
+          res.status(400).json({
+            success: false,
+            message: error.message
           });
         } else if (error.message.includes('MFA code required')) {
           res.status(401).json({
@@ -226,6 +231,95 @@ export class AuthController {
         success: false,
         message: 'Logout all failed'
       });
+    }
+  }
+
+  async verifyEmail(req: Request, res: Response): Promise<void> {
+    try {
+      const { token } = req.params;
+
+      if (!token) {
+        res.status(400).json({
+          success: false,
+          message: 'Verification token is required'
+        });
+        return;
+      }
+
+      await this.authService.verifyEmail(token);
+
+      res.status(200).json({
+        success: true,
+        message: 'Email verified successfully'
+      });
+    } catch (error) {
+      console.error('Email verification error:', error);
+      
+      if (error instanceof Error) {
+        if (error.message.includes('Invalid or expired')) {
+          res.status(400).json({
+            success: false,
+            message: error.message
+          });
+        } else {
+          res.status(500).json({
+            success: false,
+            message: 'Email verification failed'
+          });
+        }
+      } else {
+        res.status(500).json({
+          success: false,
+          message: 'Email verification failed'
+        });
+      }
+    }
+  }
+
+  async resendVerificationEmail(req: Request, res: Response): Promise<void> {
+    try {
+      const { email } = req.body;
+
+      if (!email) {
+        res.status(400).json({
+          success: false,
+          message: 'Email is required'
+        });
+        return;
+      }
+
+      await this.authService.resendVerificationEmail(email);
+
+      res.status(200).json({
+        success: true,
+        message: 'Verification email sent successfully'
+      });
+    } catch (error) {
+      console.error('Resend verification email error:', error);
+      
+      if (error instanceof Error) {
+        if (error.message.includes('not found')) {
+          res.status(404).json({
+            success: false,
+            message: 'User not found'
+          });
+        } else if (error.message.includes('already verified')) {
+          res.status(400).json({
+            success: false,
+            message: error.message
+          });
+        } else {
+          res.status(500).json({
+            success: false,
+            message: 'Failed to resend verification email'
+          });
+        }
+      } else {
+        res.status(500).json({
+          success: false,
+          message: 'Failed to resend verification email'
+        });
+      }
     }
   }
 } 

@@ -1,0 +1,28 @@
+{
+  "development": {
+    "username": "user",
+    "password": "pass",
+    "database": "xrpl_manager_dev",
+    "host": "localhost",
+    "port": 5432,
+    "dialect": "postgres"
+  },
+  "test": {
+    "username": "user",
+    "password": "pass",
+    "database": "xrpl_manager_test",
+    "host": "localhost",
+    "port": 5432,
+    "dialect": "postgres"
+  },
+  "production": {
+    "use_env_variable": "DATABASE_URL",
+    "dialect": "postgres",
+    "dialectOptions": {
+      "ssl": {
+        "require": true,
+        "rejectUnauthorized": false
+      }
+    }
+  }
+}

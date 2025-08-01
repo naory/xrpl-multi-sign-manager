@@ -2,12 +2,10 @@ import {
   Model,
   DataTypes,
   Sequelize,
-  Optional,
-  HasMany,
-  BelongsToMany
+  Optional
 } from 'sequelize';
 import sequelize from '../config/database';
-import bcrypt from 'bcrypt';
+import * as bcrypt from 'bcrypt';
 
 interface UserAttributes {
   id: string;
@@ -30,6 +28,10 @@ interface UserAttributes {
   oauth_email?: string;
   status: string;
   last_login_at?: Date;
+  email_verified: boolean;
+  email_verification_token?: string;
+  email_verification_expires_at?: Date;
+  email_verified_at?: Date;
   created_at: Date;
   updated_at: Date;
 }
@@ -57,6 +59,10 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
   public oauth_email?: string;
   public status!: string;
   public last_login_at?: Date;
+  public email_verified!: boolean;
+  public email_verification_token?: string;
+  public email_verification_expires_at?: Date;
+  public email_verified_at?: Date;
   public created_at!: Date;
   public updated_at!: Date;
 
@@ -198,6 +204,23 @@ User.init(
       },
     },
     last_login_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    email_verified: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    email_verification_token: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    email_verification_expires_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    email_verified_at: {
       type: DataTypes.DATE,
       allowNull: true,
     },

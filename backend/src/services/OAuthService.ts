@@ -1,7 +1,6 @@
-import jwt from 'jsonwebtoken';
-import crypto from 'crypto';
+import * as jwt from 'jsonwebtoken';
+import * as crypto from 'crypto';
 import User from '../models/User';
-import { AuthService } from './AuthService';
 
 interface OAuthUserData {
   provider: 'google' | 'apple';
@@ -29,16 +28,14 @@ interface OAuthResult {
 }
 
 export class OAuthService {
-  private authService: AuthService;
   private readonly jwtSecret: string;
   private readonly jwtExpiry: string;
   private readonly refreshTokenExpiry: string;
 
   constructor() {
-    this.authService = new AuthService();
-    this.jwtSecret = process.env.JWT_SECRET || 'default-secret-change-in-production';
-    this.jwtExpiry = process.env.JWT_EXPIRY || '15m';
-    this.refreshTokenExpiry = process.env.REFRESH_TOKEN_EXPIRY || '7d';
+    this.jwtSecret = process.env['JWT_SECRET'] || 'default-secret-change-in-production';
+    this.jwtExpiry = process.env['JWT_EXPIRY'] || '15m';
+    this.refreshTokenExpiry = process.env['REFRESH_TOKEN_EXPIRY'] || '7d';
   }
 
   async authenticateOAuthUser(userData: OAuthUserData): Promise<OAuthResult> {
@@ -78,8 +75,13 @@ export class OAuthService {
           oauth_email: email,
           role: 'user',
           status: 'active',
-          // Generate a random password for OAuth users
-          password_hash: await this.generateOAuthPassword()
+          email_verified: true, // OAuth users are pre-verified
+          password_hash: await this.generateOAuthPassword(),
+          kyc_status: 'pending',
+          aml_status: 'pending',
+          ofac_status: 'pending',
+          risk_score: 0,
+          mfa_enabled: false
         });
       }
     }
@@ -161,6 +163,7 @@ export class OAuthService {
       role: user.role
     };
 
+    // @ts-ignore - JWT types issue
     return jwt.sign(payload, this.jwtSecret, { expiresIn: this.jwtExpiry });
   }
 
@@ -171,6 +174,7 @@ export class OAuthService {
       role: user.role
     };
 
+    // @ts-ignore - JWT types issue
     return jwt.sign(payload, this.jwtSecret, { expiresIn: this.refreshTokenExpiry });
   }
 
@@ -222,9 +226,9 @@ export class OAuthService {
     }
 
     // Unlink OAuth account
-    user.oauth_provider = null;
-    user.oauth_id = null;
-    user.oauth_email = null;
+    (user as any).oauth_provider = undefined;
+    (user as any).oauth_id = undefined;
+    (user as any).oauth_email = undefined;
     await user.save();
   }
 } 

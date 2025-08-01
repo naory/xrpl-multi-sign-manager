@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import * as jwt from 'jsonwebtoken';
 import User from '../../models/User';
 
 interface AuthenticatedRequest extends Request {
@@ -27,7 +27,7 @@ export const authenticateJWT = async (
     }
 
     const token = authHeader.substring(7); // Remove 'Bearer ' prefix
-    const jwtSecret = process.env.JWT_SECRET || 'default-secret-change-in-production';
+    const jwtSecret = process.env['JWT_SECRET'] || 'default-secret-change-in-production';
 
     const decoded = jwt.verify(token, jwtSecret) as {
       userId: string;

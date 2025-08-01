@@ -1,7 +1,7 @@
-import winston from 'winston';
+import * as winston from 'winston';
 
-const logLevel = process.env.LOG_LEVEL || 'info';
-const isDevelopment = process.env.NODE_ENV === 'development';
+const logLevel = process.env['LOG_LEVEL'] || 'info';
+const isDevelopment = process.env['NODE_ENV'] === 'development';
 
 // Custom format for development
 const developmentFormat = winston.format.combine(

@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import dotenv from 'dotenv';
+import * as dotenv from 'dotenv';
 
 dotenv.config();
 
@@ -7,9 +7,9 @@ const {
   DATABASE_URL,
   DB_HOST = 'localhost',
   DB_PORT = '5432',
-  DB_NAME = 'xrpl_multi_sign_manager',
-  DB_USER = 'postgres',
-  DB_PASSWORD = 'postgres',
+  DB_NAME = 'xrpl_manager_dev',
+  DB_USER = 'user',
+  DB_PASSWORD = 'pass',
   NODE_ENV = 'development'
 } = process.env;
 

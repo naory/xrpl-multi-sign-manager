@@ -273,6 +273,7 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
       field: 'id',
     },
     onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
   });
 
   // Wallet Signers table

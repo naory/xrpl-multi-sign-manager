@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import sequelize from '../config/database';
 
 export class HealthController {
-  static async healthCheck(req: Request, res: Response): Promise<void> {
+  static async healthCheck(_req: Request, res: Response): Promise<void> {
     try {
       // Check database connection
       await sequelize.authenticate();
@@ -11,8 +11,8 @@ export class HealthController {
         status: 'healthy',
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
-        environment: process.env.NODE_ENV || 'development',
-        version: process.env.npm_package_version || '1.0.0',
+        environment: process.env['NODE_ENV'] || 'development',
+        version: process.env['npm_package_version'] || '1.0.0',
         services: {
           database: 'connected',
           redis: 'unknown', // TODO: Add Redis health check
@@ -32,8 +32,8 @@ export class HealthController {
           status: 'unhealthy',
           timestamp: new Date().toISOString(),
           uptime: process.uptime(),
-          environment: process.env.NODE_ENV || 'development',
-          version: process.env.npm_package_version || '1.0.0',
+                  environment: process.env['NODE_ENV'] || 'development',
+        version: process.env['npm_package_version'] || '1.0.0',
           services: {
             database: 'disconnected',
             redis: 'unknown',
@@ -45,7 +45,7 @@ export class HealthController {
     }
   }
 
-  static async readinessCheck(req: Request, res: Response): Promise<void> {
+  static async readinessCheck(_req: Request, res: Response): Promise<void> {
     try {
       // Check if application is ready to serve requests
       await sequelize.authenticate();
@@ -65,7 +65,7 @@ export class HealthController {
     }
   }
 
-  static async livenessCheck(req: Request, res: Response): Promise<void> {
+  static async livenessCheck(_req: Request, res: Response): Promise<void> {
     // Simple liveness check - just return OK if the process is running
     res.status(200).json({
       success: true,

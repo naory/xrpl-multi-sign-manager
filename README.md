@@ -1,6 +1,30 @@
-# XRPL Multi-Sign Manager
+# XRPL Multi-Signature Coordinator
 
-A user-friendly application for simplified workflows to create and maintain multi-signature wallets on the XRP Ledger (XRPL).
+A user-friendly application for **coordinating multi-signature workflows** on the XRP Ledger (XRPL). This application focuses on **workflow coordination** rather than private key storage, allowing users to manage multi-sig wallets using their existing trusted wallets (Ledger, Xaman, etc.).
+
+## 🚀 **Quick Access**
+
+### Development Environment
+- **Frontend Application**: http://localhost:3000
+- **Backend API**: http://localhost:3001
+- **Health Check**: http://localhost:3001/health
+- **API Documentation**: http://localhost:3001/docs
+- **Database Management (pgAdmin)**: http://localhost:5050
+- **Redis Management**: http://localhost:8081
+
+## 🎯 **Key Differentiators**
+
+### 🔒 **Non-Custodial Security**
+- **No Private Key Storage**: The application never stores or manages private keys
+- **User Control**: Users maintain full control of their assets using their existing wallets
+- **Reduced Risk**: No custodial security concerns or compliance burden
+- **Trusted Integration**: Works with existing trusted wallets (Ledger, Xaman, XUMM)
+
+### 🔄 **Coordination Focus**
+- **Workflow Management**: Emphasis on coordinating multi-signature processes
+- **Real-Time Tracking**: Live signature progress and transaction status
+- **Seamless Integration**: Connect with external wallets for signing
+- **Comprehensive Auditing**: Full audit trails for compliance and transparency
 
 ## Table of Contents
 
@@ -20,42 +44,42 @@ A user-friendly application for simplified workflows to create and maintain mult
 
 ## Product Overview
 
-The XRPL Multi-Sign Manager is a comprehensive solution designed to simplify the creation, management, and operation of multi-signature wallets on the XRP Ledger. The application provides an intuitive interface for both technical and non-technical users to securely manage digital assets through multi-signature workflows.
+The XRPL Multi-Signature Coordinator is a comprehensive solution designed to **coordinate multi-signature workflows** on the XRP Ledger. The application provides an intuitive interface for managing multi-signature processes without storing private keys, allowing users to leverage their existing trusted wallets for signing operations.
 
 ### Key Value Propositions
 
-- **Simplified Multi-Signature Management**: Streamlined workflows for creating and managing multi-signature wallets
-- **Enterprise-Grade Security**: Advanced security features with audit trails and compliance support
-- **User-Friendly Interface**: Intuitive design that reduces the complexity of multi-signature operations
-- **Comprehensive Monitoring**: Real-time transaction monitoring and notification systems
-- **Compliance Ready**: Built-in features for regulatory compliance and audit requirements
+- **Non-Custodial Security**: No private key storage - users maintain full control
+- **Workflow Coordination**: Streamlined processes for multi-signature management
+- **External Wallet Integration**: Works with existing wallets (Ledger, Xaman, XUMM)
+- **Real-Time Tracking**: Live signature progress and transaction status
+- **Compliance Ready**: Built-in audit trails and reporting for regulatory compliance
 
 ## Target Users
 
 ### Primary Users
-- **Corporate Treasurers**: Managing corporate digital assets with multi-signature security
-- **DAO Administrators**: Coordinating multi-signature requirements for decentralized organizations
-- **Financial Institutions**: Implementing secure digital asset management solutions
-- **High-Net-Worth Individuals**: Managing personal digital assets with enhanced security
+- **Corporate Treasurers**: Coordinating multi-signature workflows for corporate digital assets
+- **DAO Administrators**: Managing multi-signature processes for decentralized organizations
+- **Financial Institutions**: Implementing secure multi-signature coordination solutions
+- **High-Net-Worth Individuals**: Coordinating multi-signature operations with existing wallets
 
 ### Secondary Users
-- **Developers**: Integrating multi-signature functionality into applications
+- **Developers**: Integrating multi-signature coordination into applications
 - **Compliance Officers**: Monitoring and auditing multi-signature activities
-- **Security Teams**: Implementing and maintaining security protocols
+- **Security Teams**: Implementing and maintaining coordination protocols
 
 ## Product Roadmap
 
 ### Phase 1: MVP (Months 1-3)
-**Core Multi-Signature Functionality**
+**Core Coordination Functionality**
 
-- Basic wallet creation and management
-- Multi-signature setup (2-of-3, 3-of-5 configurations)
-- Transaction signing workflows
-- Basic user authentication
-- XRPL integration for wallet operations
+- Wallet import and verification
+- External signer management
+- Transaction proposal creation
+- Signature collection and tracking
+- Real-time coordination updates
 
 ### Phase 2: Enhanced Features (Months 4-6)
-**Advanced Management Capabilities**
+**Advanced Coordination Capabilities**
 
 - Role-based access control
 - Transaction templates and batch operations
@@ -66,7 +90,7 @@ The XRPL Multi-Sign Manager is a comprehensive solution designed to simplify the
 ### Phase 3: Enterprise Features (Months 7-9)
 **Enterprise-Grade Solutions**
 
-- Advanced security features (hardware key integration)
+- Advanced workflow management
 - Compliance and regulatory reporting
 - API for third-party integrations
 - Advanced analytics and monitoring
@@ -87,9 +111,10 @@ The XRPL Multi-Sign Manager is a comprehensive solution designed to simplify the
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Frontend      │    │   Backend API   │    │   XRPL Node     │
-│   (React/Next)  │◄──►│   (Node.js)     │◄──►│   Integration   │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
+│   Frontend      │    ┌─────────────────┐    ┌─────────────────┐
+│   (React/Next)  │◄──►│   Backend API   │◄──►│   XRPL Node     │
+└─────────────────┘    │   (Node.js)     │    │   Integration   │
+         │             └─────────────────┘    └─────────────────┘
          │                       │                       │
          │                       │                       │
          ▼                       ▼                       ▼
@@ -99,332 +124,226 @@ The XRPL Multi-Sign Manager is a comprehensive solution designed to simplify the
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
-### Data Flow Architecture
+### Key Architectural Principles
 
-1. **User Interface Layer**: React-based frontend with real-time updates
-2. **API Gateway**: RESTful API with WebSocket support for real-time features
-3. **Business Logic Layer**: Core multi-signature management logic
-4. **Data Persistence Layer**: PostgreSQL for transactional data, Redis for caching
-5. **External Integration Layer**: XRPL node communication and third-party services
+- **Non-Custodial**: No private key storage or management
+- **Coordination-First**: Focus on workflow management and signature collection
+- **External Integration**: Seamless integration with existing wallets
+- **Real-Time Updates**: WebSocket-based live updates
+- **Audit Trail**: Comprehensive logging for compliance
 
 ## Supported Workflows
 
-### 1. Wallet Creation Workflow
+### 1. Wallet Import Workflow
+1. User enters multi-signature wallet address
+2. System verifies wallet exists and is multi-sig
+3. System imports existing signers and quorum settings
+4. User provides wallet name and description
+5. Wallet is ready for coordination
 
-```
-User Registration → Identity Verification → Wallet Configuration → 
-Multi-Signature Setup → Key Distribution → Wallet Activation
-```
+### 2. Transaction Coordination Workflow
+1. User creates transaction proposal
+2. System builds unsigned XRPL transaction
+3. Signers review and sign with their external wallets
+4. System tracks signature progress in real-time
+5. Transaction is submitted when quorum is met
 
-**Detailed Steps:**
-1. User registers and completes KYC/AML verification
-2. Configures wallet parameters (signature requirements, co-signers)
-3. Generates and distributes signing keys to authorized parties
-4. Activates wallet with initial funding
-5. Confirms wallet setup and begins monitoring
-
-### 2. Transaction Signing Workflow
-
-```
-Transaction Initiation → Approval Routing → Multi-Signature Collection → 
-Transaction Execution → Confirmation & Notification
-```
-
-**Detailed Steps:**
-1. Transaction initiator creates and submits transaction request
-2. System routes approval requests to required signers
-3. Signers review and approve/reject transactions
-4. System collects required signatures
-5. Executes transaction on XRPL
-6. Sends confirmations to all parties
-
-### 3. Key Management Workflow
-
-```
-Key Rotation Request → Approval Process → New Key Generation → 
-Key Distribution → Wallet Reconfiguration → Old Key Retirement
-```
-
-**Detailed Steps:**
-1. Key rotation request initiated by authorized user
-2. Approval process follows multi-signature requirements
-3. New keys generated and distributed securely
-4. Wallet reconfigured with new key set
-5. Old keys retired and invalidated
-
-### 4. Compliance and Audit Workflow
-
-```
-Activity Monitoring → Compliance Checking → Report Generation → 
-Audit Trail Maintenance → Regulatory Reporting
-```
-
-**Detailed Steps:**
-1. Continuous monitoring of all wallet activities
-2. Automated compliance rule checking
-3. Generation of audit reports and logs
-4. Maintenance of immutable audit trails
-5. Automated regulatory reporting where required
+### 3. Signer Management Workflow
+1. User adds signers by public address
+2. System validates signer address format
+3. User assigns weight and metadata
+4. System updates XRPL signer list
+5. Signers are notified of changes
 
 ## Feature Specifications
 
 ### Core Features
 
-#### 1. Wallet Management
-- **Multi-Signature Configuration**: Support for various signature schemes (2-of-3, 3-of-5, etc.)
-- **Key Management**: Secure generation, storage, and rotation of signing keys
-- **Wallet Monitoring**: Real-time balance and transaction monitoring
-- **Backup and Recovery**: Secure backup mechanisms and disaster recovery
+#### Wallet Import & Management
+- **Import Existing Wallets**: Import multi-sig wallets by address or QR code
+- **Wallet Verification**: Verify ownership through signature verification
+- **Network Support**: Support for testnet, mainnet, and devnet
+- **Balance Monitoring**: Real-time balance tracking
 
-#### 2. Transaction Management
-- **Transaction Creation**: Intuitive interface for creating XRPL transactions
-- **Approval Workflows**: Configurable approval processes with role-based permissions
-- **Batch Operations**: Support for multiple transaction processing
-- **Transaction Templates**: Pre-configured transaction types for common operations
+#### Signer Management
+- **External Signer Addition**: Add signers by public address
+- **Weight Assignment**: Assign signing weights (1-255)
+- **Signer Metadata**: Store nicknames, emails, and wallet types
+- **Signer Removal**: Remove signers with quorum validation
 
-#### 3. User Management
-- **Role-Based Access Control**: Granular permissions based on user roles
-- **Multi-Factor Authentication**: Enhanced security with 2FA/MFA
-- **Session Management**: Secure session handling with timeout controls
-- **User Onboarding**: Streamlined user registration and verification
+#### Transaction Coordination
+- **Transaction Proposals**: Create proposals for various XRPL transactions
+- **Signature Collection**: Collect signatures from external wallets
+- **Progress Tracking**: Real-time signature progress monitoring
+- **Automatic Submission**: Submit when quorum requirements are met
 
-#### 4. Security Features
-- **Hardware Key Integration**: Support for hardware security modules (HSM)
-- **Encryption**: End-to-end encryption for sensitive data
-- **Audit Logging**: Comprehensive logging of all system activities
-- **Threat Detection**: Automated detection of suspicious activities
-
-#### 5. Compliance and Reporting
-- **Regulatory Compliance**: Built-in compliance with financial regulations
-- **Audit Trails**: Immutable audit logs for all operations
-- **Reporting Tools**: Comprehensive reporting and analytics
-- **Data Export**: Secure export of compliance and audit data
+#### Real-Time Updates
+- **WebSocket Integration**: Live updates for all operations
+- **Push Notifications**: Instant notifications for important events
+- **Live Dashboard**: Real-time wallet and transaction status
+- **Mobile Responsive**: Access from any device
 
 ### Advanced Features
 
-#### 1. API Integration
-- **RESTful API**: Comprehensive API for third-party integrations
-- **WebSocket Support**: Real-time updates and notifications
-- **SDK Libraries**: Client libraries for popular programming languages
-- **Webhook Support**: Event-driven integrations with external systems
+#### Security & Compliance
+- **Audit Logging**: Comprehensive activity logging
+- **Access Control**: Role-based permissions
+- **Signature Verification**: Validate all signatures
+- **Compliance Reporting**: Export reports for regulatory requirements
 
-#### 2. Analytics and Monitoring
-- **Real-Time Dashboard**: Live monitoring of wallet activities
-- **Performance Analytics**: Transaction performance and cost analysis
-- **Risk Assessment**: Automated risk scoring and alerts
-- **Predictive Analytics**: AI-powered insights and recommendations
+#### Analytics & Reporting
+- **Transaction Analytics**: Analyze transaction patterns
+- **Signer Performance**: Track signer response times
+- **Export Capabilities**: Export data in various formats
+- **Custom Reports**: Build custom analytics dashboards
 
-#### 3. Mobile Support
-- **Mobile App**: Native mobile applications for iOS and Android
-- **Push Notifications**: Real-time notifications for critical events
-- **Offline Capabilities**: Limited functionality when offline
-- **Biometric Authentication**: Touch ID, Face ID, and fingerprint support
+#### API & Integration
+- **RESTful API**: Full API access for integrations
+- **Webhook Support**: Event-based notifications
+- **Third-Party Integration**: Connect with external services
+- **SDK Libraries**: Client libraries for developers
 
 ## UI/UX Design
 
 ### Design Principles
+- **Simplicity**: Clean, intuitive interface
+- **Clarity**: Clear information hierarchy
+- **Efficiency**: Streamlined workflows
+- **Accessibility**: Inclusive design for all users
 
-1. **Simplicity**: Clean, intuitive interface that reduces complexity
-2. **Security**: Visual indicators of security status and trust levels
-3. **Accessibility**: WCAG 2.1 AA compliance for inclusive design
-4. **Responsiveness**: Seamless experience across all device types
-5. **Consistency**: Unified design language throughout the application
+### Key Interface Elements
+- **Dashboard**: Overview of wallets and pending transactions
+- **Wallet Management**: Import, configure, and manage wallets
+- **Transaction Center**: Create and track transaction proposals
+- **Signer Directory**: Manage external signers
+- **Analytics Hub**: View performance and activity metrics
 
-### Key Interface Components
-
-#### 1. Dashboard
-- **Wallet Overview**: Summary of all managed wallets
-- **Recent Activity**: Latest transactions and approvals
-- **Quick Actions**: Common tasks and shortcuts
-- **Alerts and Notifications**: Important system messages
-
-#### 2. Wallet Management Interface
-- **Wallet List**: Comprehensive view of all wallets
-- **Wallet Details**: Detailed information and configuration
-- **Transaction History**: Complete transaction logs
-- **Settings and Configuration**: Wallet-specific settings
-
-#### 3. Transaction Interface
-- **Transaction Creation**: Step-by-step transaction builder
-- **Approval Queue**: Pending transactions requiring approval
-- **Transaction Status**: Real-time status tracking
-- **Confirmation Screens**: Clear confirmation and success states
-
-#### 4. User Management Interface
-- **User Directory**: Management of all system users
-- **Role Management**: Assignment and configuration of user roles
-- **Permission Settings**: Granular permission configuration
-- **Activity Monitoring**: User activity tracking and reporting
-
-### Design System
-
-#### Color Palette
-- **Primary**: Deep Blue (#1E3A8A) - Trust and security
-- **Secondary**: Emerald Green (#059669) - Success and confirmation
-- **Accent**: Amber (#D97706) - Warnings and alerts
-- **Neutral**: Gray scale (#F9FAFB to #111827) - Content and text
-
-#### Typography
-- **Primary Font**: Inter - Modern, readable sans-serif
-- **Monospace Font**: JetBrains Mono - For technical content
-- **Font Sizes**: 12px to 48px scale for different contexts
-
-#### Components
-- **Buttons**: Primary, secondary, and danger variants
-- **Forms**: Consistent form elements with validation
-- **Cards**: Information containers with consistent spacing
-- **Modals**: Overlay dialogs for important actions
-- **Tables**: Data presentation with sorting and filtering
+### Mobile Experience
+- **Responsive Design**: Optimized for all screen sizes
+- **Touch-Friendly**: Large touch targets and gestures
+- **Offline Capability**: Basic functionality without internet
+- **Mobile Notifications**: Push notifications for important events
 
 ## Technology Stack
 
 ### Frontend
-- **Framework**: React 18 with TypeScript
-- **UI Library**: Tailwind CSS with custom components
-- **State Management**: Zustand for global state
-- **Routing**: React Router for navigation
-- **Real-time**: Socket.io client for live updates
-- **Testing**: Jest and React Testing Library
+- **React 18**: Modern UI framework
+- **Next.js 14**: Full-stack React framework
+- **TypeScript**: Type-safe development
+- **Tailwind CSS**: Utility-first CSS framework
+- **Zustand**: Lightweight state management
 
 ### Backend
-- **Runtime**: Node.js 18+ with TypeScript
-- **Framework**: Express.js with middleware architecture
-- **Database**: PostgreSQL 15+ for transactional data
-- **Caching**: Redis for session and cache management
-- **Authentication**: JWT with refresh token rotation
-- **API Documentation**: OpenAPI 3.0 with Swagger UI
+- **Node.js**: Server-side JavaScript runtime
+- **Express.js**: Web application framework
+- **TypeScript**: Type-safe development
+- **Sequelize**: Database ORM
+- **JWT**: Authentication and authorization
+
+### Database
+- **PostgreSQL**: Primary database
+- **Redis**: Caching and session storage
+- **Migrations**: Database version control
 
 ### Infrastructure
-- **Containerization**: Docker with Docker Compose
-- **Orchestration**: Kubernetes for production deployment
-- **CI/CD**: GitHub Actions with automated testing
-- **Monitoring**: Prometheus and Grafana
-- **Logging**: ELK Stack (Elasticsearch, Logstash, Kibana)
-- **Security**: Vault for secret management
-
-### Blockchain Integration
-- **XRPL Client**: xrpl.js for XRPL interactions
-- **Node Management**: Connection to multiple XRPL nodes
-- **Transaction Handling**: Custom transaction builders and validators
-- **WebSocket**: Real-time XRPL event monitoring
+- **Docker**: Containerization
+- **Kubernetes**: Container orchestration
+- **GitHub Actions**: CI/CD pipeline
+- **Monitoring**: Prometheus, Grafana, ELK Stack
 
 ## API Integrations
 
 ### XRPL Integration
-- **XRPL Node Connection**: Direct connection to XRPL nodes
-- **Transaction Submission**: Secure transaction broadcasting
-- **Account Monitoring**: Real-time account state monitoring
-- **Ledger Validation**: Transaction validation and confirmation
+- **XRPL Client**: Direct integration with XRPL nodes
+- **Transaction Building**: Construct XRPL transactions
+- **Account Information**: Retrieve wallet and balance data
+- **Multi-Signature Support**: Handle multi-sig transactions
+
+### External Wallet Support
+- **Ledger Integration**: Hardware wallet support
+- **Xaman Integration**: Mobile wallet integration
+- **XUMM Integration**: XUMM wallet compatibility
+- **Generic Support**: Any XRPL wallet address
 
 ### Third-Party Services
-- **Identity Verification**: Integration with KYC/AML providers
-- **Hardware Security**: HSM integration for enhanced security
-- **Notification Services**: Email, SMS, and push notification providers
-- **Analytics**: Integration with analytics and monitoring services
-
-### External APIs
-- **Exchange Rates**: Real-time cryptocurrency exchange rates
-- **Market Data**: Cryptocurrency market information
-- **Regulatory APIs**: Compliance and regulatory data sources
-- **Security Services**: Threat intelligence and security monitoring
+- **Notification Services**: Email, SMS, push notifications
+- **Analytics Platforms**: Performance monitoring
+- **Compliance Tools**: KYC/AML integration
+- **Backup Services**: Data backup and recovery
 
 ## Security Considerations
 
-### Authentication and Authorization
-- **Multi-Factor Authentication**: TOTP, SMS, and hardware key support
-- **Role-Based Access Control**: Granular permission system
-- **Session Management**: Secure session handling with rotation
-- **API Security**: Rate limiting, input validation, and CORS
+### Non-Custodial Security Model
+- **No Private Key Storage**: Application never stores private keys
+- **External Signing**: All signatures provided by external wallets
+- **Signature Verification**: Validate all signatures before submission
+- **Audit Trails**: Comprehensive logging of all operations
+
+### Access Control
+- **Multi-Factor Authentication**: Enhanced login security
+- **Role-Based Access**: Granular permission system
+- **Session Management**: Secure session handling
+- **Rate Limiting**: Prevent abuse and attacks
 
 ### Data Protection
-- **Encryption at Rest**: AES-256 encryption for stored data
-- **Encryption in Transit**: TLS 1.3 for all communications
-- **Key Management**: Secure key generation and storage
-- **Data Privacy**: GDPR and CCPA compliance
-
-### Operational Security
-- **Audit Logging**: Comprehensive activity logging
-- **Monitoring**: Real-time security monitoring and alerting
-- **Incident Response**: Automated incident detection and response
-- **Backup and Recovery**: Secure backup and disaster recovery
-
-### Compliance
-- **Regulatory Compliance**: Built-in compliance with financial regulations
-- **Audit Trails**: Immutable audit logs for all operations
-- **Reporting**: Automated regulatory reporting capabilities
-- **Data Retention**: Configurable data retention policies
+- **Encryption**: Data encrypted at rest and in transit
+- **Privacy**: Minimal data collection and storage
+- **Compliance**: GDPR, CCPA, and other privacy regulations
+- **Backup Security**: Encrypted backups and recovery
 
 ## Development Phases
 
 ### Phase 1: Foundation (Weeks 1-4)
-**Infrastructure and Core Setup**
+- [x] Project setup and architecture
+- [x] Database schema design
+- [x] Authentication system
+- [x] Basic API structure
+- [x] XRPL integration foundation
 
-- Project structure and development environment
-- Database schema design and implementation
-- Basic authentication and user management
-- XRPL integration foundation
-- CI/CD pipeline setup
+### Phase 2: Core Features (Weeks 5-8)
+- [x] Wallet import functionality
+- [x] External signer management
+- [x] Transaction coordination
+- [x] Real-time updates
+- [x] Basic UI components
 
-### Phase 2: Core Features (Weeks 5-12)
-**Essential Multi-Signature Functionality**
+### Phase 3: Enhancement (Weeks 9-12)
+- [ ] Advanced coordination features
+- [ ] Mobile responsiveness
+- [ ] Analytics and reporting
+- [ ] API documentation
+- [ ] Security hardening
 
-- Wallet creation and management
-- Basic multi-signature setup
-- Transaction creation and signing
-- User interface development
-- Basic security features
-
-### Phase 3: Enhanced Features (Weeks 13-20)
-**Advanced Management Capabilities**
-
-- Role-based access control
-- Advanced transaction workflows
-- Notification system
-- Audit logging
-- Mobile responsiveness
-
-### Phase 4: Enterprise Features (Weeks 21-28)
-**Enterprise-Grade Solutions**
-
-- API development
-- Advanced security features
-- Compliance and reporting
-- Performance optimization
-- Comprehensive testing
-
-### Phase 5: Production Preparation (Weeks 29-32)
-**Production Deployment**
-
-- Security audits and penetration testing
-- Performance testing and optimization
-- Documentation completion
-- Production deployment
-- Monitoring and alerting setup
+### Phase 4: Production (Weeks 13-16)
+- [ ] Performance optimization
+- [ ] Comprehensive testing
+- [ ] Security audits
+- [ ] Production deployment
+- [ ] Monitoring and alerting
 
 ## Getting Started
 
 ### Prerequisites
 - Node.js 18+ and npm
-- PostgreSQL 15+
+- PostgreSQL 14+
 - Redis 6+
 - Docker and Docker Compose
-- Git
 
 ### Installation
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-org/xrpl-multi-sign-manager.git
+   git clone https://github.com/naory/xrpl-multi-sign-manager.git
    cd xrpl-multi-sign-manager
    ```
 
 2. **Set up environment variables**
    ```bash
-   cp .env.example .env
+   cp env.example .env
    # Edit .env with your configuration
    ```
 
-3. **Start development environment**
+3. **Start the development environment**
    ```bash
    docker-compose up -d
    npm install
@@ -436,48 +355,52 @@ Audit Trail Maintenance → Regulatory Reporting
    npm run migrate
    ```
 
-5. **Start the application**
-   ```bash
-   npm run start:dev
-   ```
+5. **Access the application**
+   - Frontend: http://localhost:3000
+   - Backend API: http://localhost:3001
+   - Health Check: http://localhost:3001/health
+   - API Documentation: http://localhost:3001/docs
+   - Database Management (pgAdmin): http://localhost:5050
+   - Redis Management: http://localhost:8081
 
 ### Development Commands
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run test` - Run test suite
-- `npm run lint` - Run linting
-- `npm run migrate` - Run database migrations
-- `npm run seed` - Seed database with test data
+```bash
+# Install dependencies
+npm install
+
+# Start development servers
+npm run dev
+
+# Run tests
+npm test
+
+# Build for production
+npm run build
+
+# Run database migrations
+npm run migrate
+
+# Start production servers
+npm start
+```
 
 ## Contributing
 
-### Development Workflow
+We welcome contributions from the community! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
 
-1. Create a feature branch from `develop`
-2. Implement changes with comprehensive tests
-3. Ensure all tests pass and code quality checks
-4. Create a pull request with detailed description
-5. Code review and approval process
-6. Merge to `develop` branch
+### Development Setup
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests for new functionality
+5. Submit a pull request
 
 ### Code Standards
-
 - Follow TypeScript best practices
-- Maintain 90%+ test coverage
-- Use conventional commit messages
-- Follow ESLint and Prettier configuration
-- Write comprehensive documentation
-
-### Testing Strategy
-
-- **Unit Tests**: Jest for individual component testing
-- **Integration Tests**: API endpoint testing
-- **E2E Tests**: Playwright for end-to-end testing
-- **Security Tests**: Automated security scanning
-- **Performance Tests**: Load testing and optimization
-
----
+- Write comprehensive tests
+- Use conventional commits
+- Follow the established code style
 
 ## License
 
@@ -485,7 +408,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Support
 
-For support and questions:
-- Documentation: [docs.xrpl-multi-sign-manager.com](https://docs.xrpl-multi-sign-manager.com)
-- Issues: [GitHub Issues](https://github.com/your-org/xrpl-multi-sign-manager/issues)
-- Community: [Discord Server](https://discord.gg/xrpl-multi-sign-manager) 
+- **Documentation**: [Project Wiki](https://github.com/naory/xrpl-multi-sign-manager/wiki)
+- **Issues**: [GitHub Issues](https://github.com/naory/xrpl-multi-sign-manager/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/naory/xrpl-multi-sign-manager/discussions)
+- **Community**: [Discord Server](https://discord.gg/xrpl-multi-sign-manager) 

@@ -1,8 +1,9 @@
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-import crypto from 'crypto';
-import { User } from '../models/User';
-import { Session } from '../models/Session';
+import * as jwt from 'jsonwebtoken';
+import * as crypto from 'crypto';
+import User from '../models/User';
+import Session from '../models/Session';
+import { EmailService } from './EmailService';
+import { LoggingService } from './LoggingService';
 
 interface RegisterUserData {
   email: string;
@@ -34,19 +35,20 @@ interface TokenPayload {
 }
 
 export class AuthService {
-  private readonly saltRounds = 12;
   private readonly jwtSecret: string;
   private readonly jwtExpiry: string;
   private readonly refreshTokenExpiry: string;
+  private readonly emailService: EmailService;
 
   constructor() {
-    this.jwtSecret = process.env.JWT_SECRET || 'default-secret-change-in-production';
-    this.jwtExpiry = process.env.JWT_EXPIRY || '15m';
-    this.refreshTokenExpiry = process.env.REFRESH_TOKEN_EXPIRY || '7d';
+    this.jwtSecret = process.env['JWT_SECRET'] || 'default-secret-change-in-production';
+    this.jwtExpiry = process.env['JWT_EXPIRY'] || '15m';
+    this.refreshTokenExpiry = process.env['REFRESH_TOKEN_EXPIRY'] || '7d';
+    this.emailService = new EmailService();
   }
 
-  async registerUser(userData: RegisterUserData): Promise<User> {
-    const { email, password, firstName, lastName, phone } = userData;
+  async registerUser(registerData: RegisterUserData): Promise<User> {
+    const { email, password, firstName, lastName, phone } = registerData;
 
     // Check if user already exists
     const existingUser = await User.findOne({ where: { email } });
@@ -57,19 +59,51 @@ export class AuthService {
     // Validate password strength
     this.validatePassword(password);
 
+    // Generate verification token
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
     // Create user
-    const user = await User.create({
+    const userData: any = {
       email: email.toLowerCase(),
       first_name: firstName,
       last_name: lastName,
-      phone,
       role: 'user',
-      status: 'active'
-    });
+      status: 'active',
+      password_hash: '', // Will be set after creation
+      kyc_status: 'pending',
+      aml_status: 'pending',
+      ofac_status: 'pending',
+      risk_score: 0,
+      mfa_enabled: false,
+      email_verified: false,
+      email_verification_token: verificationToken,
+      email_verification_expires_at: expiresAt
+    };
+    
+    // Only add phone if provided
+    if (phone) {
+      userData.phone = phone;
+    }
+    
+    const user = await User.create(userData);
 
     // Hash and set password
     await user.hashPassword(password);
     await user.save();
+
+    // Send verification email
+    try {
+      await this.emailService.sendVerificationEmail(email, verificationToken, firstName);
+      LoggingService.info('Verification email sent', { userId: user.id, email });
+    } catch (error) {
+      LoggingService.error('Failed to send verification email', { 
+        userId: user.id, 
+        email, 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      });
+      // Don't fail registration if email fails, but log it
+    }
 
     return user;
   }
@@ -208,6 +242,7 @@ export class AuthService {
       role: user.role
     };
 
+    // @ts-ignore - JWT types issue
     return jwt.sign(payload, this.jwtSecret, { expiresIn: this.jwtExpiry });
   }
 
@@ -218,6 +253,7 @@ export class AuthService {
       role: user.role
     };
 
+    // @ts-ignore - JWT types issue
     return jwt.sign(payload, this.jwtSecret, { expiresIn: this.refreshTokenExpiry });
   }
 
@@ -256,7 +292,7 @@ export class AuthService {
     }
   }
 
-  private verifyMFA(secret: string, code: string): boolean {
+  private verifyMFA(_secret: string, code: string): boolean {
     // This is a simplified MFA verification
     // In production, use a proper TOTP library like 'speakeasy'
     try {
@@ -273,6 +309,83 @@ export class AuthService {
       return decoded;
     } catch (error) {
       throw new Error('Invalid token');
+    }
+  }
+
+  async verifyEmail(token: string): Promise<boolean> {
+    try {
+      // Find user by verification token
+      const user = await User.findOne({
+        where: {
+          email_verification_token: token,
+          email_verification_expires_at: {
+            [require('sequelize').Op.gt]: new Date()
+          }
+        }
+      });
+
+      if (!user) {
+        throw new Error('Invalid or expired verification token');
+      }
+
+      // Mark email as verified
+      user.email_verified = true;
+      user.email_verified_at = new Date();
+      await user.save();
+      
+      // Clear verification fields by setting to empty string and null date
+      await User.update(
+        {
+          email_verification_token: '',
+          email_verification_expires_at: new Date(0)
+        },
+        {
+          where: { id: user.id }
+        }
+      );
+
+      LoggingService.info('Email verified successfully', { userId: user.id, email: user.email });
+      return true;
+    } catch (error) {
+      LoggingService.error('Email verification failed', { 
+        token, 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      });
+      throw error;
+    }
+  }
+
+  async resendVerificationEmail(email: string): Promise<boolean> {
+    try {
+      const user = await User.findOne({ where: { email: email.toLowerCase() } });
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      if (user.email_verified) {
+        throw new Error('Email is already verified');
+      }
+
+      // Generate new verification token
+      const verificationToken = crypto.randomBytes(32).toString('hex');
+      const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+      // Update user with new token
+      user.email_verification_token = verificationToken;
+      user.email_verification_expires_at = expiresAt;
+      await user.save();
+
+      // Send verification email
+      await this.emailService.sendVerificationEmail(email, verificationToken, user.first_name);
+      
+      LoggingService.info('Verification email resent', { userId: user.id, email });
+      return true;
+    } catch (error) {
+      LoggingService.error('Failed to resend verification email', { 
+        email, 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      });
+      throw error;
     }
   }
 } 
